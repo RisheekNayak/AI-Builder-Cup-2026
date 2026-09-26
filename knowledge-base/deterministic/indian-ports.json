@@ -1,0 +1,142 @@
+[
+    {
+        "name": "Nhava Sheva (JNPT)",
+        "code": "INNSA1",
+        "type": "sea",
+        "state": "Maharashtra",
+        "city": "Navi Mumbai"
+    },
+    {
+        "name": "Mundra Port",
+        "code": "INMUN1",
+        "type": "sea",
+        "state": "Gujarat",
+        "city": "Mundra"
+    },
+    {
+        "name": "Chennai Port",
+        "code": "INMAA1",
+        "type": "sea",
+        "state": "Tamil Nadu",
+        "city": "Chennai"
+    },
+    {
+        "name": "Kolkata Port",
+        "code": "INCCU1",
+        "type": "sea",
+        "state": "West Bengal",
+        "city": "Kolkata"
+    },
+    {
+        "name": "Kandla Port",
+        "code": "INIXY1",
+        "type": "sea",
+        "state": "Gujarat",
+        "city": "Gandhidham"
+    },
+    {
+        "name": "Cochin Port",
+        "code": "INCOK1",
+        "type": "sea",
+        "state": "Kerala",
+        "city": "Kochi"
+    },
+    {
+        "name": "Visakhapatnam Port",
+        "code": "INVTZ1",
+        "type": "sea",
+        "state": "Andhra Pradesh",
+        "city": "Visakhapatnam"
+    },
+    {
+        "name": "Tuticorin Port (V.O.C.)",
+        "code": "INTUT1",
+        "type": "sea",
+        "state": "Tamil Nadu",
+        "city": "Thoothukudi"
+    },
+    {
+        "name": "Mormugao Port",
+        "code": "INMRM1",
+        "type": "sea",
+        "state": "Goa",
+        "city": "Vasco da Gama"
+    },
+    {
+        "name": "Paradip Port",
+        "code": "INPRT1",
+        "type": "sea",
+        "state": "Odisha",
+        "city": "Paradip"
+    },
+    {
+        "name": "Delhi IGI Airport",
+        "code": "INDEL4",
+        "type": "air",
+        "state": "Delhi",
+        "city": "New Delhi"
+    },
+    {
+        "name": "Mumbai CSI Airport",
+        "code": "INBOM4",
+        "type": "air",
+        "state": "Maharashtra",
+        "city": "Mumbai"
+    },
+    {
+        "name": "Kempegowda International Airport",
+        "code": "INBLR4",
+        "type": "air",
+        "state": "Karnataka",
+        "city": "Bengaluru"
+    },
+    {
+        "name": "Rajiv Gandhi International Airport",
+        "code": "INHYD4",
+        "type": "air",
+        "state": "Telangana",
+        "city": "Hyderabad"
+    },
+    {
+        "name": "Chennai International Airport",
+        "code": "INMAA4",
+        "type": "air",
+        "state": "Tamil Nadu",
+        "city": "Chennai"
+    },
+    {
+        "name": "ICD Tughlakabad",
+        "code": "INTKD6",
+        "type": "icd",
+        "state": "Delhi",
+        "city": "New Delhi"
+    },
+    {
+        "name": "ICD Whitefield",
+        "code": "INWFD6",
+        "type": "icd",
+        "state": "Karnataka",
+        "city": "Bengaluru"
+    },
+    {
+        "name": "ICD Dadri",
+        "code": "INDER6",
+        "type": "icd",
+        "state": "Uttar Pradesh",
+        "city": "Greater Noida"
+    },
+    {
+        "name": "ICD Ludhiana",
+        "code": "INLUD6",
+        "type": "icd",
+        "state": "Punjab",
+        "city": "Ludhiana"
+    },
+    {
+        "name": "ICD Pithampur",
+        "code": "ININD6",
+        "type": "icd",
+        "state": "Madhya Pradesh",
+        "city": "Indore"
+    }
+]

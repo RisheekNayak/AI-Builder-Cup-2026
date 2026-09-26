@@ -1,0 +1,74 @@
+[
+    {
+        "name": "India-UAE CEPA",
+        "partner_countries": ["AE"],
+        "effective_date": "2022-05-01",
+        "key_benefits": "Duty-free access to 90% of India's exports to UAE by value.",
+        "origin_criteria": "Wholly obtained or value addition of at least 40% along with change in tariff heading.",
+        "certificate_form_name": "Certificate of Origin (India-UAE CEPA)",
+        "sectors_covered": ["Gems & Jewellery", "Textiles", "Leather", "Footwear", "Sports Goods", "Engineering", "Auto Components", "Plastics"]
+    },
+    {
+        "name": "India-ASEAN FTA",
+        "partner_countries": ["BN", "KH", "ID", "LA", "MY", "MM", "PH", "SG", "TH", "VN"],
+        "effective_date": "2010-01-01",
+        "key_benefits": "Tariff elimination on 4000+ product lines.",
+        "origin_criteria": "Regional Value Content (RVC) of not less than 35% of FOB value and Change in Tariff Sub-Heading (CTSH).",
+        "certificate_form_name": "AIFTA Certificate of Origin",
+        "sectors_covered": ["Agriculture", "Chemicals", "Plastics", "Machinery", "Auto Components", "Textiles"]
+    },
+    {
+        "name": "India-Japan CEPA",
+        "partner_countries": ["JP"],
+        "effective_date": "2011-08-01",
+        "key_benefits": "Tariff elimination on 90% of tariff lines.",
+        "origin_criteria": "Qualifying Value Content (QVC) of 35% and Change in Tariff Heading (CTH).",
+        "certificate_form_name": "IJCEPA Certificate of Origin",
+        "sectors_covered": ["Garments", "Agriculture", "Chemicals", "Pharmaceuticals", "Jewellery"]
+    },
+    {
+        "name": "India-Korea CEPA",
+        "partner_countries": ["KR"],
+        "effective_date": "2010-01-01",
+        "key_benefits": "Tariff elimination on 85% of tariff lines.",
+        "origin_criteria": "Regional Value Content (RVC) of 35% and Change in Tariff Sub-Heading (CTSH).",
+        "certificate_form_name": "IKCEPA Certificate of Origin",
+        "sectors_covered": ["Machinery", "Auto Parts", "Chemicals", "Textiles"]
+    },
+    {
+        "name": "India-Australia ECTA",
+        "partner_countries": ["AU"],
+        "effective_date": "2022-12-29",
+        "key_benefits": "Zero duty on 100% of tariff lines.",
+        "origin_criteria": "Wholly obtained or Value addition of 35% with Change in Tariff Sub-Heading (CTSH).",
+        "certificate_form_name": "Certificate of Origin (India-Australia ECTA)",
+        "sectors_covered": ["Textiles", "Leather", "Furniture", "Jewellery", "Machinery"]
+    },
+    {
+        "name": "SAFTA",
+        "partner_countries": ["AF", "BD", "BT", "MV", "NP", "PK", "LK"],
+        "effective_date": "2006-01-01",
+        "key_benefits": "Phased tariff reduction to 0-5%.",
+        "origin_criteria": "Value addition of 30-40% depending on LDC/non-LDC status.",
+        "certificate_form_name": "SAFTA Certificate of Origin",
+        "sectors_covered": ["Agriculture", "Textiles", "Machinery"]
+    },
+    {
+        "name": "India-Singapore CECA",
+        "partner_countries": ["SG"],
+        "effective_date": "2005-08-01",
+        "key_benefits": "Tariff elimination for extensive list of products.",
+        "origin_criteria": "Qualifying Value Content of 40% and Change in Tariff Heading.",
+        "certificate_form_name": "ISCECA Certificate of Origin",
+        "sectors_covered": ["Electricals", "Electronics", "Pharmaceuticals", "Chemicals"]
+    },
+    {
+        "name": "APTA",
+        "partner_countries": ["BD", "CN", "KR", "LA", "LK", "MN"],
+        "effective_date": "1976-06-17",
+        "key_benefits": "Margin of Preference (MoP) on specified tariff lines.",
+        "origin_criteria": "Value addition of 45% (35% for LDCs).",
+        "certificate_form_name": "APTA Certificate of Origin",
+        "sectors_covered": ["Chemicals", "Plastics", "Leather", "Wood"]
+    }
+]

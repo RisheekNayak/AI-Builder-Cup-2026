@@ -1,0 +1,48 @@
+{
+    "invoice_number": "INV/2026/09/101",
+    "invoice_date": "2026-09-25",
+    "exporter": {
+        "company_name": "Pune Auto Components Pvt Ltd",
+        "iec": "0305012345",
+        "gstin": "27AAACP1234Q1Z5",
+        "address": "MIDC Bhosari, Pune, Maharashtra 411026, India"
+    },
+    "consignee": {
+        "company_name": "Dubai Motors LLC",
+        "address": "Al Quoz Industrial Area 3, Dubai, UAE",
+        "country": "AE"
+    },
+    "port_of_loading": "INNSA1",
+    "port_of_discharge": "AEDXB",
+    "currency": "USD",
+    "items": [
+        {
+            "item_no": 1,
+            "hs_code": "87083000",
+            "description": "Brake pads for passenger cars",
+            "quantity": 500,
+            "uqc": "NOS",
+            "unit_price": 12.50,
+            "fob_value": 6250.00
+        },
+        {
+            "item_no": 2,
+            "hs_code": "87089300",
+            "description": "Clutch plates assembly",
+            "quantity": 200,
+            "uqc": "NOS",
+            "unit_price": 45.00,
+            "fob_value": 9000.00
+        },
+        {
+            "item_no": 3,
+            "hs_code": "84818090",
+            "description": "Automotive check valves",
+            "quantity": 1000,
+            "uqc": "NOS",
+            "unit_price": 5.25,
+            "fob_value": 5250.00
+        }
+    ],
+    "total_fob_value": 20500.00
+}

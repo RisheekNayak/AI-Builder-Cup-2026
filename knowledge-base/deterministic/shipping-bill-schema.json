@@ -1,0 +1,82 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Indian ICEGATE Shipping Bill",
+    "type": "object",
+    "properties": {
+        "General_Details": {
+            "type": "object",
+            "properties": {
+                "iec": { "type": "string", "minLength": 10, "maxLength": 10 },
+                "ad_code": { "type": "string" },
+                "port_code": { "type": "string" },
+                "job_no": { "type": "string" },
+                "job_date": { "type": "string", "format": "date" }
+            },
+            "required": ["iec", "ad_code", "port_code"]
+        },
+        "Consignee_Details": {
+            "type": "object",
+            "properties": {
+                "consignee_name": { "type": "string" },
+                "consignee_address": { "type": "string" },
+                "consignee_country": { "type": "string" }
+            },
+            "required": ["consignee_name", "consignee_country"]
+        },
+        "Invoice_Details": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "invoice_no": { "type": "string" },
+                    "invoice_date": { "type": "string", "format": "date" },
+                    "currency": { "type": "string" },
+                    "exchange_rate": { "type": "number" },
+                    "invoice_value": { "type": "number" },
+                    "payment_terms": { "type": "string" }
+                },
+                "required": ["invoice_no", "invoice_date", "currency", "invoice_value"]
+            }
+        },
+        "Item_Details": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "item_no": { "type": "integer" },
+                    "hs_code": { "type": "string", "minLength": 8, "maxLength": 8 },
+                    "description": { "type": "string" },
+                    "quantity": { "type": "number" },
+                    "uqc": { "type": "string" },
+                    "fob_value": { "type": "number" },
+                    "drawback_details": {
+                        "type": "object",
+                        "properties": {
+                            "dbk_schedule_no": { "type": "string" },
+                            "dbk_amount": { "type": "number" }
+                        }
+                    },
+                    "rodtep_details": {
+                        "type": "object",
+                        "properties": {
+                            "rodtep_claimed": { "type": "boolean" },
+                            "rodtep_amount": { "type": "number" }
+                        }
+                    }
+                },
+                "required": ["hs_code", "description", "quantity", "uqc", "fob_value"]
+            }
+        },
+        "Package_Details": {
+            "type": "object",
+            "properties": {
+                "total_packages": { "type": "integer" },
+                "package_type": { "type": "string" },
+                "gross_weight": { "type": "number" },
+                "net_weight": { "type": "number" }
+            },
+            "required": ["total_packages", "gross_weight"]
+        }
+    },
+    "required": ["General_Details", "Consignee_Details", "Invoice_Details", "Item_Details", "Package_Details"]
+}

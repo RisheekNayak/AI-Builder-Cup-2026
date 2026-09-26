@@ -1,0 +1,16 @@
+{
+  "categories": [
+    {
+      "id": "0",
+      "name": "Nuclear Materials, Facilities and Equipment",
+      "keywords": ["nuclear", "uranium", "plutonium", "reactor", "centrifuge", "zirconium", "heavy water", "graphite", "tritium"],
+      "hs_code_prefixes": ["2612", "2844", "2845", "8401"]
+    },
+    {
+      "id": "1", 
+      "name": "Toxic Chemical Agents and related equipment",
+      "keywords": ["toxic", "chemical agents", "sarin", "ricin", "mustard gas", "phosgene", "cyanide", "precursors"],
+      "hs_code_prefixes": ["28", "29", "30"]
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+[
+    {
+        "hs_code": "87083000",
+        "description": "Brakes and servo-brakes; parts thereof",
+        "chapter": "87",
+        "scomet_status": "non_scomet",
+        "common_destinations": ["US", "AE", "DE", "GB"],
+        "typical_duty_rate_us": "2.5%",
+        "typical_duty_rate_eu": "4.5%",
+        "typical_duty_rate_uae": "0% (under CEPA)"
+    },
+    {
+        "hs_code": "87089300",
+        "description": "Clutches and parts thereof",
+        "chapter": "87",
+        "scomet_status": "non_scomet",
+        "common_destinations": ["US", "AE", "ZA", "DE"],
+        "typical_duty_rate_us": "2.5%",
+        "typical_duty_rate_eu": "4.5%",
+        "typical_duty_rate_uae": "0% (under CEPA)"
+    },
+    {
+        "hs_code": "84818090",
+        "description": "Other appliances for pipes, boiler shells, tanks, vats or the like",
+        "chapter": "84",
+        "scomet_status": "non_scomet",
+        "common_destinations": ["US", "AE", "SA", "DE"],
+        "typical_duty_rate_us": "2.0%",
+        "typical_duty_rate_eu": "2.2%",
+        "typical_duty_rate_uae": "5%"
+    },
+    {
+        "hs_code": "85444299",
+        "description": "Other electric conductors, for a voltage not exceeding 1,000 V, fitted with connectors",
+        "chapter": "85",
+        "scomet_status": "non_scomet",
+        "common_destinations": ["US", "GB", "AE", "SG"],
+        "typical_duty_rate_us": "2.6%",
+        "typical_duty_rate_eu": "3.3%",
+        "typical_duty_rate_uae": "5%"
+    },
+    {
+        "hs_code": "85176290",
+        "description": "Other machines for the reception, conversion and transmission or regeneration of voice, images or other data",
+        "chapter": "85",
+        "scomet_status": "scomet_cat_8",
+        "common_destinations": ["US", "NL", "AE", "SG"],
+        "typical_duty_rate_us": "0%",
+        "typical_duty_rate_eu": "0%",
+        "typical_duty_rate_uae": "0%"
+    },
+    {
+        "hs_code": "72104900",
+        "description": "Flat-rolled products of iron or non-alloy steel, of a width of 600 mm or more, clad, plated or coated: Otherwise plated or coated with zinc: Other",
+        "chapter": "72",
+        "scomet_status": "non_scomet",
+        "common_destinations": ["AE", "IT", "BE", "NP"],
+        "typical_duty_rate_us": "Free",
+        "typical_duty_rate_eu": "0%",
+        "typical_duty_rate_uae": "5%"
+    },
+    {
+        "hs_code": "73089090",
+        "description": "Other structures and parts of structures, of iron or steel",
+        "chapter": "73",
+        "scomet_status": "non_scomet",
+        "common_destinations": ["US", "AE", "GB", "AU"],
+        "typical_duty_rate_us": "Free",
+        "typical_duty_rate_eu": "0%",
+        "typical_duty_rate_uae": "0% (under CEPA)"
+    },
+    {
+        "hs_code": "62052090",
+        "description": "Men's or boys' shirts of cotton: Other",
+        "chapter": "62",
+        "scomet_status": "non_scomet",
+        "common_destinations": ["US", "AE", "GB", "DE"],
+        "typical_duty_rate_us": "19.7%",
+        "typical_duty_rate_eu": "12.0%",
+        "typical_duty_rate_uae": "0% (under CEPA)"
+    },
+    {
+        "hs_code": "63022100",
+        "description": "Printed bed linen, of cotton",
+        "chapter": "63",
+        "scomet_status": "non_scomet",
+        "common_destinations": ["US", "AE", "GB", "AU"],
+        "typical_duty_rate_us": "6.7%",
+        "typical_duty_rate_eu": "12.0%",
+        "typical_duty_rate_uae": "0% (under CEPA)"
+    },
+    {
+        "hs_code": "30049099",
+        "description": "Other medicaments (excluding goods of heading 30.02, 30.05 or 30.06) consisting of mixed or unmixed products for therapeutic or prophylactic uses",
+        "chapter": "30",
+        "scomet_status": "non_scomet",
+        "common_destinations": ["US", "ZA", "GB", "RU"],
+        "typical_duty_rate_us": "Free",
+        "typical_duty_rate_eu": "Free",
+        "typical_duty_rate_uae": "0%"
+    },
+    {
+        "hs_code": "29420090",
+        "description": "Other organic compounds",
+        "chapter": "29",
+        "scomet_status": "scomet_cat_1",
+        "common_destinations": ["US", "CH", "DE", "CN"],
+        "typical_duty_rate_us": "6.5%",
+        "typical_duty_rate_eu": "5.5%",
+        "typical_duty_rate_uae": "5%"
+    },
+    {
+        "hs_code": "71131930",
+        "description": "Articles of jewellery and parts thereof, of gold, unstudded",
+        "chapter": "71",
+        "scomet_status": "non_scomet",
+        "common_destinations": ["US", "AE", "HK", "SG"],
+        "typical_duty_rate_us": "5.5%",
+        "typical_duty_rate_eu": "2.5%",
+        "typical_duty_rate_uae": "0% (under CEPA)"
+    },
+    {
+        "hs_code": "84137099",
+        "description": "Other centrifugal pumps",
+        "chapter": "84",
+        "scomet_status": "non_scomet",
+        "common_destinations": ["US", "AE", "ZA", "BD"],
+        "typical_duty_rate_us": "Free",
+        "typical_duty_rate_eu": "1.7%",
+        "typical_duty_rate_uae": "5%"
+    },
+    {
+        "hs_code": "85044090",
+        "description": "Static converters: Other",
+        "chapter": "85",
+        "scomet_status": "scomet_cat_5",
+        "common_destinations": ["US", "DE", "AE", "SG"],
+        "typical_duty_rate_us": "1.5%",
+        "typical_duty_rate_eu": "3.3%",
+        "typical_duty_rate_uae": "5%"
+    },
+    {
+        "hs_code": "90318000",
+        "description": "Other measuring or checking instruments, appliances and machines",
+        "chapter": "90",
+        "scomet_status": "scomet_cat_8",
+        "common_destinations": ["US", "DE", "SG", "GB"],
+        "typical_duty_rate_us": "1.7%",
+        "typical_duty_rate_eu": "2.8%",
+        "typical_duty_rate_uae": "5%"
+    }
+]

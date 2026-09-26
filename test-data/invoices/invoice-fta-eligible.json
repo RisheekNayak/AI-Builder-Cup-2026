@@ -1,0 +1,39 @@
+{
+    "invoice_number": "TIR/26/889",
+    "invoice_date": "2026-09-26",
+    "exporter": {
+        "company_name": "Tirupur Textiles Exports",
+        "iec": "0401887654",
+        "gstin": "33AAACT9876P2Z8",
+        "address": "Netaji Apparel Park, Tirupur, Tamil Nadu 641602, India"
+    },
+    "consignee": {
+        "company_name": "Emirates Retail Group",
+        "address": "Deira City Centre, Dubai, UAE",
+        "country": "AE"
+    },
+    "port_of_loading": "INTUT1",
+    "port_of_discharge": "AEDXB",
+    "currency": "USD",
+    "items": [
+        {
+            "item_no": 1,
+            "hs_code": "62052090",
+            "description": "Men's shirts of cotton, woven",
+            "quantity": 2000,
+            "uqc": "PCS",
+            "unit_price": 8.50,
+            "fob_value": 17000.00
+        },
+        {
+            "item_no": 2,
+            "hs_code": "63022100",
+            "description": "Printed bed linen, of cotton",
+            "quantity": 1000,
+            "uqc": "PCS",
+            "unit_price": 15.00,
+            "fob_value": 15000.00
+        }
+    ],
+    "total_fob_value": 32000.00
+}

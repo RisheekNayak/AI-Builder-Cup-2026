@@ -1,0 +1,39 @@
+{
+    "invoice_number": "EX/2026/EL/045",
+    "invoice_date": "2026-09-24",
+    "exporter": {
+        "company_name": "Bangalore Precision Electronics Ltd",
+        "iec": "0798123456",
+        "gstin": "29AABCB8901R1Z2",
+        "address": "Electronic City Phase 1, Bangalore, Karnataka 560100, India"
+    },
+    "consignee": {
+        "company_name": "SingaTech Engineering Pte Ltd",
+        "address": "Jurong Industrial Estate, Singapore 629000",
+        "country": "SG"
+    },
+    "port_of_loading": "INBLR4",
+    "port_of_discharge": "SGSIN",
+    "currency": "USD",
+    "items": [
+        {
+            "item_no": 1,
+            "hs_code": "85437099",
+            "description": "Precision frequency synthesizers (Range: 10 GHz to 40 GHz)",
+            "quantity": 10,
+            "uqc": "NOS",
+            "unit_price": 15000.00,
+            "fob_value": 150000.00
+        },
+        {
+            "item_no": 2,
+            "hs_code": "85371000",
+            "description": "CNC Controllers with multi-axis contouring capabilities",
+            "quantity": 5,
+            "uqc": "NOS",
+            "unit_price": 8500.00,
+            "fob_value": 42500.00
+        }
+    ],
+    "total_fob_value": 192500.00
+}
