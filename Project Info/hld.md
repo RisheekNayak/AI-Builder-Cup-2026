@@ -13,55 +13,56 @@ flowchart TD
     User((Exporter))
 
     %% Frontend
-    subgraph Frontend [Next.js Frontend / UI]
-        Dashboard[Dashboard & History]
-        Upload[Invoice Upload]
-        Advisor[TradeAdvisor Chat]
+    subgraph Frontend_App ["Next.js Frontend"]
+        Dashboard["Dashboard & History"]
+        Upload["Invoice Upload"]
+        Advisor["TradeAdvisor Chat"]
     end
 
     %% Backend
-    subgraph Backend [FastAPI Backend]
-        Router[API Routers]
-        Orchestrator[Compliance Engine Orchestrator]
-        
-        subgraph Services [Core Services]
-            DocParser[Document AI Service]
-            RuleEngine[Deterministic Rules Engine]
-            RAG[Vertex Search RAG Service]
-            LLM[Gemini Reasoner]
-            PDFGen[ReportLab Form Generator]
-        end
+    subgraph Backend_App ["FastAPI Backend"]
+        Router["API Routers"]
+        Orchestrator["Compliance Orchestrator"]
+        DocParser["Document AI Service"]
+        RuleEngine["Deterministic Rules Engine"]
+        RAG["Vertex Search RAG"]
+        LLM["Gemini Reasoner"]
+        PDFGen["ReportLab Form Generator"]
     end
 
     %% Google Cloud Platform
-    subgraph GCP [Google Cloud Platform]
-        DocAI[Document AI \nInvoice Parser]
-        VertexSearch[(Vertex AI Search \nDatastore)]
-        Gemini[Vertex AI \nGemini 1.5 Pro]
-        GCS[(Cloud Storage)]
+    subgraph GCP ["Google Cloud Platform"]
+        DocAI["Document AI"]
+        VertexSearch[("Vertex Search DB")]
+        Gemini["Gemini 1.5 Pro"]
+        GCS[("Cloud Storage")]
     end
 
-    %% Local Knowledge Base
-    LocalKB[(Local JSON \nKnowledge Base)]
+    LocalKB[("Local JSON Rules")]
 
     %% Connections
-    User -->|Uploads Invoice / Chats| Frontend
-    Frontend -->|REST API| Router
+    User -->|"Uploads PDF"| Upload
+    User -->|"Asks question"| Advisor
+
+    Upload -->|"REST API"| Router
+    Advisor -->|"REST API"| Router
+
     Router --> Orchestrator
 
-    %% Orchestrator flow
+    %% Orchestrator internal flow
     Orchestrator --> DocParser
     Orchestrator --> RuleEngine
     Orchestrator --> RAG
     Orchestrator --> LLM
     Orchestrator --> PDFGen
 
-    %% Service to GCP connections
-    DocParser -->|Extracts entities| DocAI
-    RAG -->|Queries Policies| VertexSearch
-    LLM -->|Prompts + Context| Gemini
+    %% External GCP Calls
+    DocParser -->|"Extracts Entities"| DocAI
+    RAG -->|"Queries Policies"| VertexSearch
+    LLM -->|"Evaluates Risk"| Gemini
+    PDFGen -->|"Saves Forms"| GCS
     
-    %% Local connections
+    %% Local DB Call
     RuleEngine --> LocalKB
 ```
 
