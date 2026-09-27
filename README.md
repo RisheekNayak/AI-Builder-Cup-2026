@@ -18,10 +18,115 @@ ShipSure acts as an AI Trade Compliance Officer:
 4. **Automated Forms:** Dynamically generates ready-to-file ICEGATE Shipping Bills, End-User Undertakings (EUU), and Certificates of Origin as downloadable PDFs.
 5. **TradeAdvisor Copilot:** A chat interface where exporters can ask complex regulatory questions, grounded directly in official DGFT/ICEGATE documents.
 
-## 🛠️ Technology Stack
-* **Frontend:** Next.js 16 (App Router), Tailwind CSS v4, TypeScript
-* **Backend:** Python 3.11, FastAPI, ReportLab
-* **Google Cloud:** Cloud Run (Serverless Hosting), Document AI (Invoice Parsing), Vertex AI Search (RAG Datastore), Gemini 1.5 Pro (Reasoning Engine), Cloud Storage
+---
+
+## 🏗️ System Architecture
+
+```mermaid
+flowchart TD
+    %% Users
+    User((Exporter))
+
+    %% Frontend
+    subgraph Frontend_App ["Next.js Frontend"]
+        Dashboard["Dashboard & History"]
+        Upload["Invoice Upload"]
+        Advisor["TradeAdvisor Chat"]
+    end
+
+    %% Backend
+    subgraph Backend_App ["FastAPI Backend"]
+        Router["API Routers"]
+        Orchestrator["Compliance Orchestrator"]
+        DocParser["Document AI Service"]
+        RuleEngine["Deterministic Rules Engine"]
+        RAG["Vertex Search RAG"]
+        LLM["Gemini Reasoner"]
+        PDFGen["ReportLab Form Generator"]
+    end
+
+    %% Google Cloud Platform
+    subgraph GCP ["Google Cloud Platform"]
+        DocAI["Document AI"]
+        VertexSearch[("Vertex Search DB")]
+        Gemini["Gemini 1.5 Pro"]
+        GCS[("Cloud Storage")]
+    end
+
+    LocalKB[("Local JSON Rules")]
+
+    %% Connections
+    User -->|"Uploads PDF"| Upload
+    User -->|"Asks question"| Advisor
+
+    Upload -->|"REST API"| Router
+    Advisor -->|"REST API"| Router
+
+    Router --> Orchestrator
+
+    %% Orchestrator internal flow
+    Orchestrator --> DocParser
+    Orchestrator --> RuleEngine
+    Orchestrator --> RAG
+    Orchestrator --> LLM
+    Orchestrator --> PDFGen
+
+    %% External GCP Calls
+    DocParser -->|"Extracts Entities"| DocAI
+    RAG -->|"Queries Policies"| VertexSearch
+    LLM -->|"Evaluates Risk"| Gemini
+    PDFGen -->|"Saves Forms"| GCS
+    
+    %% Local DB Call
+    RuleEngine --> LocalKB
+```
+
+---
+
+## 💻 Technology Stack
+
+### Frontend
+* **Framework:** Next.js 16 (App Router + Turbopack)
+* **Styling:** Tailwind CSS v4
+* **Language:** TypeScript
+* **Deployment:** Google Cloud Run (`shipsure-web`)
+
+### Backend
+* **Framework:** FastAPI (Python 3.11)
+* **PDF Generation:** ReportLab
+* **Deployment:** Google Cloud Run (`shipsure-api`)
+
+### Google Cloud Infrastructure
+* **Google Cloud Run:** Serverless container hosting for both frontend and backend.
+* **Document AI:** Specialized "Invoice Parser" processor used to extract structured metadata from raw uploaded PDFs.
+* **Vertex AI Search:** Enterprise search datastore acting as our RAG layer, indexing massive Indian trade policy PDFs (FTP 2023, SCOMET).
+* **Vertex AI Gemini:** Gemini 1.5 Pro serves as the core reasoning engine.
+* **Cloud Storage (GCS):** Stores uploaded invoices and generated compliance forms.
+
+---
+
+## ⚙️ Detailed Component Implementation
+
+### A. Data Ingestion & Extraction (`document_ai.py`)
+When a user uploads a commercial invoice, the backend sends the file bytes to **Google Document AI**. The `INVOICE_PROCESSOR` model identifies key entities regardless of the invoice's visual layout. 
+
+### B. Deterministic Rule Screening (`deterministic.py`)
+Before querying the LLM, the system performs high-speed deterministic screening:
+1. **SCOMET Check:** Scans extracted HS Codes against all 9 SCOMET categories.
+2. **FTA Eligibility:** Checks the destination country against FTAs (e.g., India-UAE CEPA) for duty savings.
+3. **Port Validation:** Validates the Port of Loading against ICEGATE UN/LOCODE standard.
+
+### C. RAG Context Retrieval (`vertex_search.py`)
+Queries the **Vertex AI Search Datastore** to retrieve highly relevant policy snippets (like specific paragraphs from the DGFT Handbook) and returns them with exact relevance scores.
+
+### D. LLM Risk Evaluation (`gemini.py`)
+Compiles a massive prompt containing the extracted invoice data, deterministic flags, and RAG context. This is sent to **Gemini 1.5 Pro**, which synthesizes a final `RiskReport` with severity scores and policy citations.
+
+### E. Automated Form Generation (`form_generator.py`)
+The `reportlab` library dynamically draws and merges the user's saved **Company Profile** with the **Extracted Invoice Data** to generate Shipping Bills, Certificates of Origin, and End-User Undertakings (EUU).
+
+### F. TradeAdvisor Copilot (`routers/advisor.py`)
+A standalone chat interface that proxies directly to Vertex Search to find documents, then uses Gemini to summarize the answer and provide exact citations.
 
 ---
 
@@ -72,9 +177,8 @@ Edit `frontend/.env.production` and set `NEXT_PUBLIC_API_URL` to the live backen
 
 ---
 
-## 📁 Repository Structure
+## 📂 Repository Structure
 * `/frontend` - Next.js React Application
 * `/backend` - FastAPI Python Server
 * `/knowledge-base` - Local JSON deterministic rule engines and data for FTAs/SCOMET
 * `/test-data` - Sample Indian export invoices used for QA and hackathon demo scenarios
-* `hld.md` - High-Level Design Architecture Document
