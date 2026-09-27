@@ -1,68 +1,76 @@
 'use client';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { getShipments } from '@/lib/api';
+import { Shipment } from '@/lib/types';
+import { cn } from '@/lib/utils';
+import { ArrowRight } from 'lucide-react';
 
-import Link from 'next/link';
-import { Package, ChevronRight } from 'lucide-react';
+export default function ShipmentHistory() {
+  const router = useRouter();
+  const [shipments, setShipments] = useState<Shipment[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default function ShipmentsHistoryPage() {
-  const shipments = [
-    { id: '1', invoice: 'INV-2023-089', destination: 'USA', date: '2023-10-24', score: 'High', status: 'Requires Action' },
-    { id: '2', invoice: 'INV-2023-088', destination: 'UAE', date: '2023-10-21', score: 'Low', status: 'Complete' },
-  ];
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await getShipments();
+        setShipments(data);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">All Shipments</h2>
-        <Link
-          href="/shipments/new"
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
-        >
-          New Shipment
-        </Link>
-      </div>
-
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        {shipments.length > 0 ? (
+      <div className="bg-white shadow-sm rounded-lg border border-slate-200 overflow-hidden">
+        {loading ? (
+          <div className="p-10 text-center text-slate-500">Loading history...</div>
+        ) : shipments.length === 0 ? (
+          <div className="p-10 text-center text-slate-500">No shipments found.</div>
+        ) : (
           <table className="min-w-full divide-y divide-slate-200">
             <thead className="bg-slate-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Invoice</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Destination</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Risk Score</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Status</th>
-                <th className="relative px-6 py-3"><span className="sr-only">View</span></th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Invoice #</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Destination</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Risk</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Status</th>
+                <th className="px-6 py-3"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 bg-white">
+            <tbody className="bg-white divide-y divide-slate-200">
               {shipments.map((shipment) => (
-                <tr key={shipment.id} className="hover:bg-slate-50">
-                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-slate-900">{shipment.invoice}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-500">{shipment.destination}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-500">{shipment.date}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm">
-                    <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
-                      shipment.score === 'High' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
-                    }`}>
-                      {shipment.score}
-                    </span>
+                <tr key={shipment.id} onClick={() => router.push(`/shipments/${shipment.id}`)} className="cursor-pointer hover:bg-slate-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">{shipment.extractedData?.invoiceNumber || shipment.filename}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{shipment.extractedData?.buyerCountry || '-'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{new Date(shipment.createdAt).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {shipment.riskReport ? (
+                      <span className={cn(
+                        "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
+                        shipment.riskReport.overallScore === 'low' ? "bg-green-100 text-green-800" :
+                        shipment.riskReport.overallScore === 'medium' ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"
+                      )}>
+                        {shipment.riskReport.overallScore === 'low' ? 'Low' : shipment.riskReport.overallScore === 'medium' ? 'Medium' : 'High'}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-slate-500">-</span>
+                    )}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-500">{shipment.status}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                    <Link href={`/shipments/${shipment.id}`} className="text-indigo-600 hover:text-indigo-900">
-                      View<span className="sr-only">, {shipment.invoice}</span>
-                    </Link>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 capitalize">{shipment.status}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <ArrowRight className="h-4 w-4 text-slate-400" />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        ) : (
-          <div className="flex flex-col items-center justify-center p-12 text-center">
-            <Package className="h-12 w-12 text-slate-300" />
-            <h3 className="mt-4 text-lg font-medium text-slate-900">No shipments found</h3>
-            <p className="mt-2 text-sm text-slate-500">Upload an invoice to start your first compliance check.</p>
-          </div>
         )}
       </div>
     </div>

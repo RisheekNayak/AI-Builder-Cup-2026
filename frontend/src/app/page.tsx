@@ -1,106 +1,113 @@
+'use client';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Upload, MessageSquare, Package, AlertTriangle, FileText, DollarSign } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Upload, MessageSquare, ArrowRight } from 'lucide-react';
+import { getShipments } from '@/lib/api';
+import { Shipment } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 export default function Dashboard() {
+  const router = useRouter();
+  const [shipments, setShipments] = useState<Shipment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await getShipments();
+        setShipments(data);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  const highRiskCount = shipments.filter(s => s.riskReport?.overallScore === 'high' || s.riskReport?.overallScore === 'critical').length;
+
   return (
     <div className="space-y-6">
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="rounded-lg bg-blue-100 p-3 text-blue-600">
-              <Package className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-500">Total Shipments</p>
-              <p className="text-2xl font-semibold text-slate-900">0</p>
-            </div>
-          </div>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200">
+          <p className="text-sm font-medium text-slate-500">Total Shipments</p>
+          <p className="mt-2 text-3xl font-semibold text-slate-900">{loading ? '-' : shipments.length}</p>
         </div>
-        
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="rounded-lg bg-red-100 p-3 text-red-600">
-              <AlertTriangle className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-500">Flagged</p>
-              <p className="text-2xl font-semibold text-slate-900">0</p>
-            </div>
-          </div>
+        <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200">
+          <p className="text-sm font-medium text-slate-500">High Risk</p>
+          <p className="mt-2 text-3xl font-semibold text-red-600">{loading ? '-' : highRiskCount}</p>
         </div>
-
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="rounded-lg bg-indigo-100 p-3 text-indigo-600">
-              <FileText className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-500">Forms Generated</p>
-              <p className="text-2xl font-semibold text-slate-900">0</p>
-            </div>
-          </div>
+        <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200">
+          <p className="text-sm font-medium text-slate-500">Forms Generated</p>
+          <p className="mt-2 text-3xl font-semibold text-slate-900">{loading ? '-' : shipments.filter(s => s.status === 'complete').length * 2}</p>
         </div>
-
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="rounded-lg bg-green-100 p-3 text-green-600">
-              <DollarSign className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-500">Duty Saved</p>
-              <p className="text-2xl font-semibold text-slate-900">₹0</p>
-            </div>
-          </div>
+        <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200">
+          <p className="text-sm font-medium text-slate-500">Estimated Duty Saved</p>
+          <p className="mt-2 text-3xl font-semibold text-green-600">$0</p>
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Link 
-          href="/shipments/new"
-          className="group relative flex items-center gap-4 rounded-xl border border-indigo-200 bg-indigo-50 p-6 shadow-sm transition-all hover:bg-indigo-100 hover:shadow-md"
-        >
-          <div className="rounded-full bg-indigo-200 p-4 text-indigo-700 transition-transform group-hover:scale-110">
-            <Upload className="h-8 w-8" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-indigo-900">New Shipment</h3>
-            <p className="text-sm text-indigo-700">Upload an invoice for automated compliance check</p>
-          </div>
+      <div className="flex space-x-4">
+        <Link href="/shipments/new" className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+          <Upload className="mr-2 h-4 w-4" />
+          Upload Invoice
         </Link>
-
-        <Link 
-          href="/advisor"
-          className="group relative flex items-center gap-4 rounded-xl border border-blue-200 bg-blue-50 p-6 shadow-sm transition-all hover:bg-blue-100 hover:shadow-md"
-        >
-          <div className="rounded-full bg-blue-200 p-4 text-blue-700 transition-transform group-hover:scale-110">
-            <MessageSquare className="h-8 w-8" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-blue-900">Trade Advisor</h3>
-            <p className="text-sm text-blue-700">Chat with AI for regulatory compliance queries</p>
-          </div>
+        <Link href="/advisor" className="inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50">
+          <MessageSquare className="mr-2 h-4 w-4 text-indigo-600" />
+          Ask TradeAdvisor
         </Link>
       </div>
 
-      {/* Recent Shipments */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 px-6 py-4">
-          <h2 className="text-lg font-semibold text-slate-900">Recent Shipments</h2>
+      <div className="bg-white shadow-sm rounded-lg border border-slate-200 overflow-hidden">
+        <div className="px-6 py-5 border-b border-slate-200">
+          <h3 className="text-lg leading-6 font-medium text-slate-900">Recent Shipments</h3>
         </div>
-        <div className="flex flex-col items-center justify-center p-12 text-center">
-          <Package className="h-12 w-12 text-slate-300" />
-          <h3 className="mt-4 text-lg font-medium text-slate-900">No shipments found</h3>
-          <p className="mt-2 text-sm text-slate-500">Get started by uploading your first commercial invoice.</p>
-          <Link
-            href="/shipments/new"
-            className="mt-6 inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            Upload Invoice
-          </Link>
-        </div>
+        {loading ? (
+          <div className="p-6 text-center text-slate-500">Loading...</div>
+        ) : shipments.length === 0 ? (
+          <div className="p-6 text-center text-slate-500">No shipments found. Upload an invoice to get started.</div>
+        ) : (
+          <table className="min-w-full divide-y divide-slate-200">
+            <thead className="bg-slate-50">
+              <tr>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Invoice #</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Destination</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Date</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Risk</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
+                <th scope="col" className="relative px-6 py-3"><span className="sr-only">View</span></th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-slate-200">
+              {shipments.slice(0, 5).map((shipment) => (
+                <tr key={shipment.id} onClick={() => router.push(`/shipments/${shipment.id}`)} className="cursor-pointer hover:bg-slate-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">{shipment.extractedData?.invoiceNumber || shipment.filename}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{shipment.extractedData?.buyerCountry || '-'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{new Date(shipment.createdAt).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {shipment.riskReport ? (
+                      <span className={cn(
+                        "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
+                        shipment.riskReport.overallScore === 'low' ? "bg-green-100 text-green-800" :
+                        shipment.riskReport.overallScore === 'medium' ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"
+                      )}>
+                        {shipment.riskReport.overallScore === 'low' ? 'Low' : shipment.riskReport.overallScore === 'medium' ? 'Medium' : 'High'}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-slate-500">-</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 capitalize">{shipment.status}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <ArrowRight className="h-4 w-4 text-slate-400" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

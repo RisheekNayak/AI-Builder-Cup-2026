@@ -3,14 +3,56 @@
     {
       "id": "0",
       "name": "Nuclear Materials, Facilities and Equipment",
-      "keywords": ["nuclear", "uranium", "plutonium", "reactor", "centrifuge", "zirconium", "heavy water", "graphite", "tritium"],
+      "keywords": ["nuclear", "uranium", "plutonium", "reactor", "centrifuge", "zirconium", "heavy water", "graphite", "tritium", "enrichment"],
       "hs_code_prefixes": ["2612", "2844", "2845", "8401"]
     },
     {
-      "id": "1", 
+      "id": "1",
       "name": "Toxic Chemical Agents and related equipment",
-      "keywords": ["toxic", "chemical agents", "sarin", "ricin", "mustard gas", "phosgene", "cyanide", "precursors"],
-      "hs_code_prefixes": ["28", "29", "30"]
+      "keywords": ["toxic", "chemical agents", "sarin", "ricin", "mustard gas", "phosgene", "cyanide", "precursors", "nerve agent"],
+      "hs_code_prefixes": ["2812", "2920", "2931"]
+    },
+    {
+      "id": "2",
+      "name": "Micro-organisms and Toxins",
+      "keywords": ["biological agent", "pathogen", "toxin", "virus culture", "bacteria culture", "fermentation", "biosafety", "containment"],
+      "hs_code_prefixes": ["3002"]
+    },
+    {
+      "id": "3",
+      "name": "Missile Systems and Unmanned Aerial Vehicles",
+      "keywords": ["missile", "rocket motor", "guidance system", "inertial navigation", "accelerometer", "gyroscope", "thrust vector", "unmanned aerial", "drone", "UAV", "cruise missile"],
+      "hs_code_prefixes": ["8802", "8803", "9014", "9306"]
+    },
+    {
+      "id": "4",
+      "name": "Dual-use Materials, Equipment and related Technologies",
+      "keywords": ["maraging steel", "beryllium", "titanium alloy", "composite", "filament winding", "isostatic press", "vacuum furnace", "carbon fibre", "flash x-ray", "pulse generator"],
+      "hs_code_prefixes": ["7202", "7218", "8105", "8112", "8462", "8514"]
+    },
+    {
+      "id": "5",
+      "name": "Dual-use Electronics and Computers",
+      "keywords": ["signal analyzer", "frequency synthesizer", "oscilloscope", "waveform digitizer", "pulse generator", "network analyzer", "spectrum analyzer", "arbitrary waveform", "microwave", "high power amplifier", "phased array", "CNC controller", "multi-axis contouring", "5-axis"],
+      "hs_code_prefixes": ["8471", "8517", "8525", "8526", "8527", "8529", "8537", "8543", "9030", "9031"]
+    },
+    {
+      "id": "6",
+      "name": "Dual-use Sensors and Lasers",
+      "keywords": ["image intensifier", "focal plane array", "infrared detector", "thermal imaging", "high-speed camera", "streak camera", "laser", "pulsed laser", "excimer laser", "chemical laser", "fiber laser"],
+      "hs_code_prefixes": ["9005", "9013", "9027"]
+    },
+    {
+      "id": "7",
+      "name": "Navigation and Avionics",
+      "keywords": ["inertial navigation", "ring laser gyroscope", "fiber optic gyroscope", "gravimeter", "gravity gradiometer", "altimeter", "radar altimeter", "sonobuoy"],
+      "hs_code_prefixes": ["9014", "9015"]
+    },
+    {
+      "id": "8",
+      "name": "Marine and Aerospace Propulsion",
+      "keywords": ["underwater vehicle", "submarine", "torpedo", "sonar", "hydrophone", "aero gas turbine", "ramjet", "scramjet", "pulse detonation", "closed cycle diesel"],
+      "hs_code_prefixes": ["8406", "8408", "8411", "8906", "8907"]
     }
   ]
 }

@@ -1,120 +1,123 @@
 'use client';
-
-import { useState } from 'react';
-import { Send, Bot, User, Loader2 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Send, User, Bot, AlertCircle } from 'lucide-react';
+import { sendAdvisorMessage } from '@/lib/api';
 import { ChatMessage } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
-export default function AdvisorPage() {
+export default function TradeAdvisor() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const starterQuestions = [
+  const starterChips = [
     'What are US tariffs for auto parts?',
     'Is HS 8501 under SCOMET?',
     'Documents needed to export to UAE?',
-    'India-UAE CEPA duty benefits?'
+    'India-UAE CEPA benefits?'
   ];
 
-  const handleSend = async (text: string = input) => {
-    if (!text.trim()) return;
-    
-    const userMsg: ChatMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: text,
-      timestamp: new Date().toISOString()
-    };
-    
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
-    setIsLoading(true);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
-    // Simulate API call for now since backend might not be ready
-    setTimeout(() => {
-      const botMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: `Here is a simulated response to: "${text}". I can help with customs compliance, tariffs, and trade documentation.`,
-        timestamp: new Date().toISOString()
-      };
-      setMessages(prev => [...prev, botMsg]);
-      setIsLoading(false);
-    }, 1500);
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSubmit = async (e?: React.FormEvent, preset?: string) => {
+    e?.preventDefault();
+    const text = preset || input;
+    if (!text.trim()) return;
+
+    setInput('');
+    const userMsg: ChatMessage = { id: Date.now().toString(), role: 'user', content: text, timestamp: new Date().toISOString() };
+    setMessages(prev => [...prev, userMsg]);
+    setLoading(true);
+
+    try {
+      const res = await sendAdvisorMessage(text);
+      const assistantMsg: ChatMessage = { id: (Date.now() + 1).toString(), role: 'assistant', content: res.reply, citations: res.sources, timestamp: new Date().toISOString() };
+      setMessages(prev => [...prev, assistantMsg]);
+    } catch (err) {
+      console.error(err);
+      const errorMsg: ChatMessage = { id: (Date.now() + 1).toString(), role: 'assistant', content: 'Sorry, I encountered an error processing your request.', timestamp: new Date().toISOString() };
+      setMessages(prev => [...prev, errorMsg]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] flex-col rounded-xl border border-slate-200 bg-white shadow-sm">
-      {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+    <div className="flex flex-col h-[calc(100vh-6rem)] bg-white rounded-lg shadow-sm border border-slate-200">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center space-y-8">
-            <div className="text-center">
-              <Bot className="mx-auto h-12 w-12 text-indigo-600" />
-              <h2 className="mt-4 text-xl font-semibold text-slate-900">Trade Advisor AI</h2>
-              <p className="mt-2 text-slate-500">Ask me anything about trade compliance and regulations.</p>
-            </div>
-            <div className="grid max-w-2xl grid-cols-1 gap-4 sm:grid-cols-2">
-              {starterQuestions.map((q, idx) => (
+          <div className="flex flex-col items-center justify-center h-full text-slate-500 space-y-4">
+            <Bot className="h-12 w-12 text-indigo-300" />
+            <h2 className="text-xl font-medium text-slate-900">How can I help you with trade compliance?</h2>
+            <div className="flex flex-wrap justify-center gap-2 max-w-2xl mt-4">
+              {starterChips.map(chip => (
                 <button
-                  key={idx}
-                  onClick={() => handleSend(q)}
-                  className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-left text-sm text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                  key={chip}
+                  onClick={() => handleSubmit(undefined, chip)}
+                  className="px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full transition-colors"
                 >
-                  {q}
+                  {chip}
                 </button>
               ))}
             </div>
           </div>
         ) : (
-          <div className="space-y-6">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
-              >
-                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${msg.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700'}`}>
-                  {msg.role === 'user' ? <User className="h-5 w-5" /> : <Bot className="h-5 w-5" />}
-                </div>
-                <div className={`rounded-lg px-4 py-3 max-w-[80%] ${msg.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-900'}`}>
-                  <p className="whitespace-pre-wrap text-sm">{msg.content}</p>
-                </div>
+          messages.map(msg => (
+            <div key={msg.id} className={cn("flex space-x-3 max-w-3xl", msg.role === 'user' ? "ml-auto flex-row-reverse space-x-reverse" : "")}>
+              <div className={cn("flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center", msg.role === 'user' ? "bg-indigo-600" : "bg-slate-200")}>
+                {msg.role === 'user' ? <User className="h-5 w-5 text-white" /> : <Bot className="h-5 w-5 text-slate-600" />}
               </div>
-            ))}
-            {isLoading && (
-              <div className="flex gap-4">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-200 text-slate-700">
-                  <Bot className="h-5 w-5" />
-                </div>
-                <div className="flex items-center rounded-lg bg-slate-100 px-4 py-3">
-                  <Loader2 className="h-5 w-5 animate-spin text-slate-500" />
-                </div>
+              <div className={cn("rounded-lg px-4 py-2", msg.role === 'user' ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-900")}>
+                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                {msg.citations && msg.citations.length > 0 && (
+                  <div className="mt-2 pt-2 border-t border-slate-200">
+                    <p className="text-xs font-semibold text-slate-500 mb-1">Sources:</p>
+                    <ul className="list-disc list-inside text-xs text-slate-500">
+                      {msg.citations.map((c, i) => <li key={i}>{c}</li>)}
+                    </ul>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
+          ))
+        )}
+        {loading && (
+          <div className="flex space-x-3 max-w-3xl">
+            <div className="flex-shrink-0 h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center">
+              <Bot className="h-5 w-5 text-slate-600" />
+            </div>
+            <div className="rounded-lg px-4 py-2 bg-slate-100 text-slate-900 flex items-center space-x-2">
+              <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+            </div>
           </div>
         )}
+        <div ref={messagesEndRef} />
       </div>
-
-      {/* Input Area */}
-      <div className="border-t border-slate-200 p-4">
-        <form
-          onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-          className="relative flex items-center"
-        >
+      <div className="p-4 border-t border-slate-200">
+        <form onSubmit={handleSubmit} className="flex space-x-2">
           <input
             type="text"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about HS codes, duties, documentation..."
-            className="w-full rounded-lg border border-slate-300 py-3 pl-4 pr-12 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-            disabled={isLoading}
+            onChange={e => setInput(e.target.value)}
+            placeholder="Ask about compliance, tariffs, or required documents..."
+            className="flex-1 min-w-0 rounded-md border-slate-300 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 border"
+            disabled={loading}
           />
           <button
             type="submit"
-            disabled={!input.trim() || isLoading}
-            className="absolute right-2 rounded-md p-2 text-indigo-600 hover:bg-indigo-50 disabled:opacity-50"
+            disabled={loading || !input.trim()}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
           >
-            <Send className="h-5 w-5" />
+            <Send className="h-4 w-4" />
           </button>
         </form>
       </div>

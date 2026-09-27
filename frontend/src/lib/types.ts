@@ -1,5 +1,6 @@
 export interface CompanyProfile {
   id?: string;
+  name?: string;
   iec: string;
   gstin: string;
   pan: string;
@@ -17,8 +18,8 @@ export interface LineItem {
   quantity: number;
   unitPrice: number;
   totalValue: number;
-  weight: number;
-  unit: string;
+  weight?: number;
+  unit?: string;
 }
 
 export interface ExtractedData {
@@ -48,6 +49,7 @@ export interface RiskReport {
   flags: RiskFlag[];
   requiredForms: string[];
   dutySavings?: string;
+  analysisSummary?: string;
 }
 
 export interface Shipment {

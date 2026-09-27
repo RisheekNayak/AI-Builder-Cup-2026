@@ -6,11 +6,67 @@
 
 ---
 
-## ⏭️ Next Session Quick Start (What's Left)
-* **Pre-requisite:** Update local Node.js to `>= 20.9.0` (currently v18.17.0) to run the Next.js frontend (`npm run dev`).
-* **Phase 2 (Cloud Infra):** Provision Google Cloud resources (Document AI Processor, Vertex AI Search datastore, GCS buckets, Cloud SQL) and update `.env`.
-* **Phase 3 (Backend Logic):** The backend files are scaffolded, but we need to write the actual Python logic inside `services/document_ai.py`, `services/vertex_search.py`, `services/gemini.py`, and `services/compliance_engine.py`.
-* **Phases 5-7 (Test, Deploy, Submit):** Run end-to-end tests with our pre-built test invoices, deploy both apps to Google Cloud Run, and record the demo video.
+## ⏭️ Implementation Progress & Status
+> **Last Updated:** End of Day, September 27, 2026 (Day 1 of 3 weeks)
+
+### ✅ What is Done
+* **Environment & Runtime Setup**:
+  - Installed `fnm` and upgraded Node.js to **v20.20.2** (x64).
+  - Next.js dependencies reinstalled cleanly with zero engine or security warnings.
+  - **Both live servers are running simultaneously**:
+    - ⚡ **Backend API**: `http://localhost:8000` (Interactive Swagger Docs: `http://localhost:8000/docs`)
+    - 💻 **Frontend Web**: `http://localhost:3000` (Next.js 16 with Turbopack)
+* **Phase 0 — Project Bootstrap**:
+  - Full repo structure scaffolded (`backend/`, `frontend/`, `knowledge-base/`, `test-data/`, `infra/`).
+  - `.env.example`, `frontend/.env.local`, and Dockerfiles created.
+* **Phase 1 — Knowledge Base Curation**:
+  - SCOMET keywords dataset covering **all 9 categories (0–8)** with exact HS prefixes and dual-use terms.
+  - Deterministic lookups: Top 50 common HS codes, active Indian FTAs (CEPA, ECTA, ASEAN, etc.), 20 major Indian ports (sea/air), ICEGATE Shipping Bill schema.
+  - 3 realistic test invoices (`invoice-clean-pass.json`, `invoice-scomet-flag.json`, `invoice-fta-eligible.json`).
+* **Phase 2 — Google Cloud Infrastructure**:
+  - Configured GCP Project ID, enabled APIs, and authenticated via ADC.
+  - Created Document AI Invoice Parser (`fc89b776c7c7c4ac`).
+  - Created Vertex AI Search Datastore (`shipsure-docs_1790522145143`) and indexed knowledge base.
+* **Phase 3 — Backend Core Services & Pipeline**:
+  - Dual-mode architecture (Production GCP vs. Local Demo Mode).
+  - `document_ai.py`: Multi-format parsing (handles both invoice schemas).
+  - `deterministic.py`: Real-time screening for SCOMET, FTAs, HS codes, port codes.
+  - `vertex_search.py` & `gemini.py`: RAG integration and LLM compliance reasoning with fallbacks.
+  - `compliance_engine.py`: Full orchestrator pipeline verified end-to-end.
+  - `form_generator.py`: PDF generation with `reportlab` for Shipping Bill, Certificate of Origin, and End-User Undertaking.
+  - Verified endpoints: `/api/upload/`, `/api/upload/shipments`, `/api/compliance/`, `/api/extraction/`, `/api/forms/`, `/api/advisor/chat`, `/api/company/`.
+* **Phase 4 — Frontend Build & Live API Wiring**:
+  - `frontend/src/lib/api.ts` rewritten and mapped directly to backend endpoints with snake_case ➔ camelCase mappers.
+  - All 10 frontend pages & layouts rebuilt with Tailwind CSS and `lucide-react`.
+
+---
+
+### 🔲 What is Left
+
+1. **Phase 5 — End-to-End Browser QA & Demo Scenarios**:
+   - Rehearse the 3 core demo scenarios through the browser UI at `http://localhost:3000`:
+     - **Demo 1 (SCOMET Flag)**: Upload `invoice-scomet-flag.json` ➔ Verify High Risk alert, SCOMET Category 5 citation, generate End-User Undertaking PDF.
+     - **Demo 2 (Clean Pass)**: Upload `invoice-clean-pass.json` ➔ Verify Low Risk pass, generate Shipping Bill PDF with company profile merged.
+     - **Demo 3 (TradeAdvisor)**: Ask tariff and regulatory questions in Chat ➔ Verify grounded responses.
+* **Phase 6 — Cloud Run Deployment**:
+  - Containerized backend and frontend using Dockerfiles.
+  - Deployed `shipsure-api` to Google Cloud Run (Serverless).
+  - Deployed `shipsure-web` to Google Cloud Run, seamlessly connected to the live backend.
+  - Handled GCP IAM permissions for Cloud Build and Artifact Registry.
+
+---
+
+### 🔲 What is Left
+
+1. **Phase 5 — End-to-End Browser QA & Demo Scenarios**:
+   - Rehearse the 3 core demo scenarios through the live browser UI at `https://shipsure-web-117561127510.us-central1.run.app`:
+     - **Demo 1 (SCOMET Flag)**: Upload `invoice-scomet-flag.json` ➔ Verify High Risk alert, SCOMET Category 5 citation, generate End-User Undertaking PDF.
+     - **Demo 2 (Clean Pass)**: Upload `invoice-clean-pass.json` ➔ Verify Low Risk pass, generate Shipping Bill PDF with company profile merged.
+     - **Demo 3 (TradeAdvisor)**: Ask tariff and regulatory questions in Chat ➔ Verify grounded responses.
+2. **Phase 7 — Hackathon Deliverables & Submission**:
+   - Record < 3 min demo video highlighting problem, AI workflow, and impact for Indian manufacturers.
+   - Prepare Solution Deck (Problem, Architecture, GCP Services, Demo Screenshots, Impact).
+   - Finalize public GitHub repository and submit on Hack2skill before October 18, 2026.
 
 ---
 
@@ -198,7 +254,7 @@ AI-Builder-Cup-2026/
 ---
 
 ### Phase 3: Backend Core Services (Days 4–10 — Sep 30–Oct 6)
-> **Status: 🟡 In Progress** (All service/router/model files scaffolded. Awaiting logic implementation)
+> **Status: ✅ Complete** (All services implemented with GCP + local fallback, all 3 test scenarios verified)
 > **Backend-Agent builds the AI pipeline. This is the heart of ShipSure.**
 
 | Step | Task | Agent | Depends On | Output |

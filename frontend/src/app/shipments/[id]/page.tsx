@@ -1,151 +1,205 @@
 'use client';
-
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { AlertTriangle, FileText, Download, CheckCircle, Info, ShieldAlert } from 'lucide-react';
+import { FileText, AlertTriangle, ShieldCheck, Download, AlertCircle } from 'lucide-react';
+import { getShipment, getExtractedData, getRiskReport, generateForms, listForms, getFormDownloadUrl } from '@/lib/api';
+import { Shipment, ExtractedData, RiskReport } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
-export default function ShipmentDetailsPage() {
+export default function ShipmentDetail() {
   const params = useParams();
+  const id = params.id as string;
   
-  // Mock data for display
-  const riskScore = 'high';
-  
-  const extractedData = {
-    invoiceNumber: 'INV-2023-089',
-    date: 'Oct 24, 2023',
-    buyer: 'Global Tech Corp (USA)',
-    seller: 'India Electronics Ltd',
-    totalValue: '$45,000.00 USD',
+  const [shipment, setShipment] = useState<Shipment | null>(null);
+  const [data, setData] = useState<ExtractedData | null>(null);
+  const [risk, setRisk] = useState<RiskReport | null>(null);
+  const [forms, setForms] = useState<{id: string, name: string}[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const s = await getShipment(id);
+        const d = await getExtractedData(id);
+        const r = await getRiskReport(id);
+        const f = await listForms(id);
+        
+        setShipment(s);
+        setData(d);
+        setRisk(r.riskReport);
+        setForms(f);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [id]);
+
+  const handleGenerateForms = async () => {
+    setGenerating(true);
+    try {
+      await generateForms(id);
+      const f = await listForms(id);
+      setForms(f);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setGenerating(false);
+    }
   };
 
-  const lineItems = [
-    { hsCode: '8501.10', description: 'Electric Motors <= 37.5W', qty: 500, value: '$12,500' },
-    { hsCode: '8542.31', description: 'Processors and Controllers', qty: 200, value: '$32,500' },
-  ];
+  if (loading) return <div className="text-center p-10 text-slate-500">Loading shipment details...</div>;
+  if (!shipment) return <div className="text-center p-10 text-red-500">Shipment not found</div>;
 
   return (
-    <div className="space-y-6">
-      {/* Header & Overall Risk */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900">Shipment {extractedData.invoiceNumber}</h2>
-          <p className="text-sm text-slate-500">Uploaded on Oct 25, 2023</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-slate-500">Risk Assessment:</span>
-          <div className="flex items-center gap-2 rounded-full bg-red-100 px-4 py-2 text-red-700">
-            <ShieldAlert className="h-5 w-5" />
-            <span className="font-bold uppercase tracking-wider">{riskScore} RISK</span>
-          </div>
-        </div>
+    <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-slate-900">
+          Shipment: {data?.invoiceNumber || shipment.filename}
+        </h2>
+        <span className="px-3 py-1 rounded-full text-sm font-medium bg-slate-100 text-slate-800 capitalize">
+          {shipment.status}
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Left Column: Extracted Data */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 px-4 py-4 sm:px-6">
-              <h3 className="text-lg font-semibold text-slate-900">Extracted Data</h3>
-            </div>
-            <div className="px-4 py-5 sm:p-6">
-              <dl className="space-y-4 text-sm text-slate-700">
-                <div className="grid grid-cols-3 gap-2">
-                  <dt className="font-medium text-slate-500">Invoice No:</dt>
-                  <dd className="col-span-2 font-semibold">{extractedData.invoiceNumber}</dd>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          {/* Extracted Data */}
+          <div className="bg-white shadow-sm rounded-lg border border-slate-200 p-6">
+            <h3 className="text-lg font-medium text-slate-900 mb-4 flex items-center">
+              <FileText className="h-5 w-5 mr-2 text-indigo-500" />
+              Extracted Invoice Data
+            </h3>
+            
+            {data ? (
+              <>
+                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6 mb-6">
+                  <div><dt className="text-sm font-medium text-slate-500">Invoice Date</dt><dd className="mt-1 text-sm text-slate-900">{data.invoiceDate}</dd></div>
+                  <div><dt className="text-sm font-medium text-slate-500">Total Value</dt><dd className="mt-1 text-sm text-slate-900">{data.currency} {data.totalValue}</dd></div>
+                  <div><dt className="text-sm font-medium text-slate-500">Seller</dt><dd className="mt-1 text-sm text-slate-900">{data.sellerName} ({data.sellerCountry})</dd></div>
+                  <div><dt className="text-sm font-medium text-slate-500">Buyer</dt><dd className="mt-1 text-sm text-slate-900">{data.buyerName} ({data.buyerCountry})</dd></div>
+                  <div><dt className="text-sm font-medium text-slate-500">Port of Loading</dt><dd className="mt-1 text-sm text-slate-900">{data.portOfLoading}</dd></div>
+                  <div><dt className="text-sm font-medium text-slate-500">Port of Discharge</dt><dd className="mt-1 text-sm text-slate-900">{data.portOfDischarge}</dd></div>
+                </dl>
+                
+                <h4 className="text-sm font-medium text-slate-900 mb-2">Line Items</h4>
+                <div className="overflow-x-auto border border-slate-200 rounded-md">
+                  <table className="min-w-full divide-y divide-slate-200">
+                    <thead className="bg-slate-50">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-slate-500">Desc</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-slate-500">HS Code</th>
+                        <th className="px-4 py-2 text-right text-xs font-medium text-slate-500">Qty</th>
+                        <th className="px-4 py-2 text-right text-xs font-medium text-slate-500">Price</th>
+                        <th className="px-4 py-2 text-right text-xs font-medium text-slate-500">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-slate-200">
+                      {data.lineItems?.map((item, i) => (
+                        <tr key={i}>
+                          <td className="px-4 py-2 text-sm text-slate-900">{item.description}</td>
+                          <td className="px-4 py-2 text-sm text-slate-500">{item.hsCode}</td>
+                          <td className="px-4 py-2 text-sm text-slate-500 text-right">{item.quantity}</td>
+                          <td className="px-4 py-2 text-sm text-slate-500 text-right">{item.unitPrice}</td>
+                          <td className="px-4 py-2 text-sm text-slate-900 text-right">{item.totalValue}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <dt className="font-medium text-slate-500">Date:</dt>
-                  <dd className="col-span-2">{extractedData.date}</dd>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <dt className="font-medium text-slate-500">Buyer:</dt>
-                  <dd className="col-span-2">{extractedData.buyer}</dd>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <dt className="font-medium text-slate-500">Seller:</dt>
-                  <dd className="col-span-2">{extractedData.seller}</dd>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <dt className="font-medium text-slate-500">Total Value:</dt>
-                  <dd className="col-span-2 font-semibold text-slate-900">{extractedData.totalValue}</dd>
-                </div>
-              </dl>
-
-              <div className="mt-6">
-                <h4 className="mb-2 text-sm font-semibold text-slate-900">Line Items</h4>
-                <div className="space-y-3">
-                  {lineItems.map((item, idx) => (
-                    <div key={idx} className="rounded-lg border border-slate-100 bg-slate-50 p-3 text-xs">
-                      <div className="flex justify-between font-semibold">
-                        <span>HS: {item.hsCode}</span>
-                        <span>{item.value}</span>
-                      </div>
-                      <div className="mt-1 text-slate-600">{item.description} (Qty: {item.qty})</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+              </>
+            ) : (
+              <p className="text-sm text-slate-500">No data extracted yet.</p>
+            )}
           </div>
         </div>
 
-        {/* Right Column: Risk & Forms */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Risk Flags */}
-          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 px-4 py-4 sm:px-6">
-              <h3 className="text-lg font-semibold text-slate-900">Compliance Flags</h3>
-            </div>
-            <div className="px-4 py-5 sm:p-6 space-y-4">
-              <div className="flex gap-4 rounded-lg border border-red-200 bg-red-50 p-4">
-                <AlertTriangle className="h-6 w-6 shrink-0 text-red-600" />
-                <div>
-                  <h4 className="font-semibold text-red-900">SCOMET License Required (Critical)</h4>
-                  <p className="mt-1 text-sm text-red-700">HS Code 8542.31 is classified under dual-use goods. Export requires prior authorization from DGFT.</p>
-                  <p className="mt-2 text-xs font-medium text-red-800">Recommendation: Apply for SCOMET license via DGFT portal before shipping.</p>
+        <div className="space-y-6">
+          {/* Risk Assessment */}
+          <div className="bg-white shadow-sm rounded-lg border border-slate-200 p-6">
+            <h3 className="text-lg font-medium text-slate-900 mb-4 flex items-center">
+              <ShieldCheck className="h-5 w-5 mr-2 text-indigo-500" />
+              Risk Assessment
+            </h3>
+            
+            {risk ? (
+              <div>
+                <div className="flex items-center justify-between mb-6 p-4 rounded-lg bg-slate-50">
+                  <span className="text-sm font-medium text-slate-700">Overall Score</span>
+                  <span className={cn(
+                    "text-2xl font-bold uppercase",
+                    risk.overallScore === 'low' ? "text-green-600" :
+                    risk.overallScore === 'medium' ? "text-yellow-600" : "text-red-600"
+                  )}>
+                    {risk.overallScore}
+                  </span>
+                </div>
+                
+                <div className="space-y-4">
+                  {risk.flags?.map((flag, i) => (
+                    <div key={i} className={cn(
+                      "p-3 rounded-md border text-sm",
+                      flag.severity === 'high' || flag.severity === 'critical' ? "bg-red-50 border-red-200" :
+                      flag.severity === 'medium' ? "bg-yellow-50 border-yellow-200" : "bg-blue-50 border-blue-200"
+                    )}>
+                      <div className="flex font-medium mb-1">
+                        <AlertTriangle className={cn("h-4 w-4 mr-2", 
+                          flag.severity === 'high' || flag.severity === 'critical' ? "text-red-500" :
+                          flag.severity === 'medium' ? "text-yellow-500" : "text-blue-500"
+                        )} />
+                        <span className={cn(
+                          flag.severity === 'high' || flag.severity === 'critical' ? "text-red-800" :
+                          flag.severity === 'medium' ? "text-yellow-800" : "text-blue-800"
+                        )}>{flag.title}</span>
+                      </div>
+                      <p className="text-slate-600 ml-6 mb-2">{flag.description}</p>
+                      {flag.recommendation && (
+                        <p className="text-xs ml-6 font-medium text-slate-700">Rec: {flag.recommendation}</p>
+                      )}
+                    </div>
+                  ))}
+                  {(!risk.flags || risk.flags.length === 0) && (
+                    <p className="text-sm text-green-600 flex items-center"><ShieldCheck className="w-4 h-4 mr-1"/> No risks detected.</p>
+                  )}
                 </div>
               </div>
-              
-              <div className="flex gap-4 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-                <Info className="h-6 w-6 shrink-0 text-yellow-600" />
-                <div>
-                  <h4 className="font-semibold text-yellow-900">US Section 301 Tariffs (Medium)</h4>
-                  <p className="mt-1 text-sm text-yellow-700">Goods may be subject to additional 25% tariff under Section 301 upon entry to the US.</p>
-                </div>
-              </div>
-            </div>
+            ) : (
+              <p className="text-sm text-slate-500">Risk report pending...</p>
+            )}
           </div>
 
-          {/* Documents */}
-          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4 sm:px-6">
-              <h3 className="text-lg font-semibold text-slate-900">Customs Documents</h3>
-              <button className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">
-                Generate Forms
-              </button>
-            </div>
-            <div className="px-4 py-5 sm:p-6">
-              <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200">
-                <li className="flex items-center justify-between p-4">
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-indigo-500" />
-                    <div>
-                      <p className="text-sm font-medium text-slate-900">Commercial Invoice (Compliant)</p>
-                      <p className="text-xs text-slate-500">Auto-generated with required declarations</p>
-                    </div>
-                  </div>
-                  <button className="text-slate-400 hover:text-indigo-600"><Download className="h-5 w-5" /></button>
-                </li>
-                <li className="flex items-center justify-between p-4">
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-slate-300" />
-                    <div>
-                      <p className="text-sm font-medium text-slate-500">Certificate of Origin</p>
-                      <p className="text-xs text-slate-400">Requires manual generation</p>
-                    </div>
-                  </div>
-                </li>
+          {/* Forms Panel */}
+          <div className="bg-white shadow-sm rounded-lg border border-slate-200 p-6">
+            <h3 className="text-lg font-medium text-slate-900 mb-4 flex items-center">
+              <Download className="h-5 w-5 mr-2 text-indigo-500" />
+              Customs Forms
+            </h3>
+            
+            {forms.length > 0 ? (
+              <ul className="space-y-2 mb-4">
+                {forms.map(form => (
+                  <li key={form.id} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded border border-slate-100">
+                    <span className="text-sm font-medium text-slate-700">{form.name}</span>
+                    <a href={getFormDownloadUrl(id, form.id)} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-800 p-1">
+                      <Download className="h-4 w-4" />
+                    </a>
+                  </li>
+                ))}
               </ul>
-            </div>
+            ) : (
+              <p className="text-sm text-slate-500 mb-4">No forms generated yet.</p>
+            )}
+            
+            <button
+              onClick={handleGenerateForms}
+              disabled={generating}
+              className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {generating ? 'Generating...' : 'Generate Forms'}
+            </button>
           </div>
         </div>
       </div>

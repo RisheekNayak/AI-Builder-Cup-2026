@@ -1,20 +1,15 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
+from backend.services.gemini import advisor_chat
+from backend.services.vertex_search import search
 
 router = APIRouter()
 
-class ChatRequest(BaseModel):
+class ChatMessage(BaseModel):
     message: str
-    context_id: str = None
 
-class ChatResponse(BaseModel):
-    reply: str
-    sources: list
-
-@router.post("/chat", response_model=ChatResponse)
-async def advisor_chat(request: ChatRequest):
-    """
-    AI Copilot chat endpoint for asking export compliance questions.
-    """
-    # TODO: Route to Gemini with Vertex Search context
-    return ChatResponse(reply="Based on DGFT rules...", sources=[])
+@router.post("/chat")
+async def chat_advisor(msg: ChatMessage):
+    search_results = await search(msg.message, top_k=3)
+    response = await advisor_chat(msg.message, search_results)
+    return response

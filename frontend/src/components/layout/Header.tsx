@@ -1,27 +1,19 @@
 'use client';
-
 import { usePathname } from 'next/navigation';
 
 export function Header() {
   const pathname = usePathname();
   
-  const getPageTitle = () => {
-    if (pathname === '/') return 'Dashboard';
-    if (pathname === '/advisor') return 'Trade Advisor';
-    if (pathname === '/shipments/new') return 'New Shipment';
-    if (pathname === '/shipments') return 'Shipment History';
-    if (pathname === '/settings') return 'Settings';
-    if (pathname?.startsWith('/shipments/')) return 'Shipment Details';
-    return 'ShipSure';
-  };
+  let title = 'Dashboard';
+  if (pathname.includes('/advisor')) title = 'Trade Advisor';
+  else if (pathname.includes('/shipments/new')) title = 'New Shipment';
+  else if (pathname.includes('/shipments/') && pathname !== '/shipments/new') title = 'Shipment Details';
+  else if (pathname.includes('/shipments')) title = 'Shipment History';
+  else if (pathname.includes('/settings')) title = 'Settings';
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-x-4 border-b border-slate-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-      <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-        <div className="flex flex-1 items-center">
-          <h1 className="text-2xl font-semibold leading-7 text-slate-900">{getPageTitle()}</h1>
-        </div>
-      </div>
+    <header className="bg-white border-b border-slate-200 h-16 flex items-center px-6">
+      <h1 className="text-xl font-semibold text-slate-800">{title}</h1>
     </header>
   );
 }
