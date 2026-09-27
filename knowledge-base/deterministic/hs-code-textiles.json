@@ -1,0 +1,45 @@
+{
+  "domain": "Textiles and Garments",
+  "chapters": ["61", "62"],
+  "hs_codes": [
+    {
+      "code": "61091000",
+      "description": "T-shirts, singlets and other vests, of cotton, knitted or crocheted",
+      "rodtep_rate_percent": 3.8
+    },
+    {
+      "code": "62052000",
+      "description": "Men's or boys' shirts of cotton, not knitted or crocheted",
+      "rodtep_rate_percent": 4.3
+    },
+    {
+      "code": "62063000",
+      "description": "Women's or girls' blouses, shirts and shirt-blouses of cotton",
+      "rodtep_rate_percent": 4.3
+    }
+  ],
+  "rebate_schemes": {
+    "RoDTEP": {
+      "full_name": "Remission of Duties and Taxes on Exported Products",
+      "description": "Refunds embedded central, state, and local duties and taxes to exporters.",
+      "general_range": "1.5% to 4.3% for Chapter 61 and 62"
+    }
+  },
+  "certifications_and_inspections": [
+    {
+      "name": "Textiles Committee Certificate",
+      "issuing_body": "Textiles Committee, Ministry of Textiles, Govt of India",
+      "requirement": "Mandatory for quality and origin certification for certain importing countries."
+    },
+    {
+      "name": "Certificate of Origin (COO)",
+      "issuing_body": "DGFT / Export Inspection Council (EIC) / FIEO",
+      "requirement": "Required for claiming preferential tariff benefits."
+    },
+    {
+      "name": "Azo-Free Dye Certificate",
+      "issuing_body": "NABL Accredited Laboratories",
+      "requirement": "Strictly required for exporting to the EU and US to ensure textiles are free from harmful Azo dyes."
+    }
+  ]
+}

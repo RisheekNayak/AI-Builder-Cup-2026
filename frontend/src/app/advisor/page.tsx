@@ -60,6 +60,7 @@ export default function TradeAdvisor() {
               {starterChips.map(chip => (
                 <button
                   key={chip}
+                  suppressHydrationWarning
                   onClick={() => handleSubmit(undefined, chip)}
                   className="px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full transition-colors"
                 >
@@ -105,6 +106,7 @@ export default function TradeAdvisor() {
       <div className="p-4 border-t border-slate-200">
         <form onSubmit={handleSubmit} className="flex space-x-2">
           <input
+            suppressHydrationWarning
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}

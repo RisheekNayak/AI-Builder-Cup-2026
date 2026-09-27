@@ -14,7 +14,7 @@ Indian exporters face a labyrinth of regulations when shipping goods overseas:
 ShipSure acts as an AI Trade Compliance Officer:
 1. **Ingestion:** Simply drag-and-drop a PDF Commercial Invoice. Google **Document AI** instantly extracts the line items, HS Codes, and consignee data.
 2. **Deterministic Screening:** High-speed local validation against active FTAs and SCOMET lists.
-3. **RAG + Reasoning:** Uses **Vertex AI Search** to retrieve relevant paragraphs from massive Indian trade policy PDFs, feeding them into **Gemini 1.5 Pro** to generate a comprehensive `Risk Report`.
+3. **RAG + Reasoning:** Uses **Vertex AI Search** to retrieve relevant paragraphs from massive Indian trade policy PDFs, feeding them into **Gemini 3.8 Flash** to generate a comprehensive `Risk Report`.
 4. **Automated Forms:** Dynamically generates ready-to-file ICEGATE Shipping Bills, End-User Undertakings (EUU), and Certificates of Origin as downloadable PDFs.
 5. **TradeAdvisor Copilot:** A chat interface where exporters can ask complex regulatory questions, grounded directly in official DGFT/ICEGATE documents.
 
@@ -49,7 +49,7 @@ flowchart TD
     subgraph GCP ["Google Cloud Platform"]
         DocAI["Document AI"]
         VertexSearch[("Vertex Search DB")]
-        Gemini["Gemini 1.5 Pro"]
+        Gemini["Gemini 3.8 Flash"]
         GCS[("Cloud Storage")]
     end
 
@@ -100,7 +100,7 @@ flowchart TD
 * **Google Cloud Run:** Serverless container hosting for both frontend and backend.
 * **Document AI:** Specialized "Invoice Parser" processor used to extract structured metadata from raw uploaded PDFs.
 * **Vertex AI Search:** Enterprise search datastore acting as our RAG layer, indexing massive Indian trade policy PDFs (FTP 2023, SCOMET).
-* **Vertex AI Gemini:** Gemini 1.5 Pro serves as the core reasoning engine.
+* **Vertex AI Gemini:** Gemini 3.8 Flash serves as the core reasoning engine.
 * **Cloud Storage (GCS):** Stores uploaded invoices and generated compliance forms.
 
 ---
@@ -120,7 +120,7 @@ Before querying the LLM, the system performs high-speed deterministic screening:
 Queries the **Vertex AI Search Datastore** to retrieve highly relevant policy snippets (like specific paragraphs from the DGFT Handbook) and returns them with exact relevance scores.
 
 ### D. LLM Risk Evaluation (`gemini.py`)
-Compiles a massive prompt containing the extracted invoice data, deterministic flags, and RAG context. This is sent to **Gemini 1.5 Pro**, which synthesizes a final `RiskReport` with severity scores and policy citations.
+Compiles a massive prompt containing the extracted invoice data, deterministic flags, and RAG context. This is sent to **Gemini 3.8 Flash**, which synthesizes a final `RiskReport` with severity scores and policy citations.
 
 ### E. Automated Form Generation (`form_generator.py`)
 The `reportlab` library dynamically draws and merges the user's saved **Company Profile** with the **Extracted Invoice Data** to generate Shipping Bills, Certificates of Origin, and End-User Undertakings (EUU).

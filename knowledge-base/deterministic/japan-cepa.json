@@ -1,0 +1,13 @@
+{
+  "name": "India-Japan Comprehensive Economic Partnership Agreement (CEPA)",
+  "partner_countries": ["JP"],
+  "effective_date": "2011-08-01",
+  "key_benefits": "Elimination of tariffs on over 90% of traded goods between India and Japan, including significant duty concessions for marine products.",
+  "origin_criteria": "Product specific rules (PSR) typically require a Change in Tariff Classification (CTC) at the 6-digit heading level or a minimum qualifying value content (QVC) of 35%.",
+  "certificate_form_name": "India-Japan CEPA Certificate of Origin",
+  "sectors_covered": ["Marine Products", "Textiles", "Pharmaceuticals", "Auto Components"],
+  "specific_regulations": {
+    "marine_products": "Duty concessions apply to various marine products, with tariffs phased out to 0% for shrimp and other seafood. Must comply with Japan's Food Sanitation Act and undergo quarantine inspections.",
+    "pharmaceuticals": "Fast-track registration for generic drugs in Japan for Indian manufacturers that meet PMDA standards."
+  }
+}

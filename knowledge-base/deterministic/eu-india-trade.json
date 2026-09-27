@@ -1,0 +1,13 @@
+{
+  "name": "EU Generalized Scheme of Preferences (GSP)",
+  "partner_countries": ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE"],
+  "effective_date": "1971-07-01",
+  "key_benefits": "Reduced or zero tariff rates for eligible Indian exports, particularly textiles, apparel, and leather products.",
+  "origin_criteria": "Products must be wholly obtained or sufficiently worked or processed in India.",
+  "certificate_form_name": "Form A (Certificate of Origin)",
+  "sectors_covered": ["Textiles", "Apparel", "Leather", "Machinery", "Electronics"],
+  "specific_regulations": {
+    "textiles": "Indian textiles face an average reduced tariff of 9.6% under the GSP standard arrangement compared to higher standard MFN rates. Exporters must comply with REACH regulations for chemicals used.",
+    "general": "Products must bear the CE mark requirements to demonstrate compliance with EU safety, health, and environmental protection standards."
+  }
+}

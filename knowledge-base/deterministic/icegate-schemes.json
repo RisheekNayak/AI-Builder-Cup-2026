@@ -1,0 +1,26 @@
+[
+  {
+    "topic": "Export Incentive Schemes",
+    "sub_topic": "RoDTEP",
+    "acronym": "Remission of Duties and Taxes on Exported Products",
+    "description": "RoDTEP is a scheme that refunds embedded central, state, and local duties/taxes that were so far not being rebated/refunded. It replaces the MEIS scheme.",
+    "how_to_claim": "To claim RoDTEP, the exporter must declare the intent to claim the benefit on the Shipping Bill (SB) by selecting the scheme code 'RoDTEP' at the item level. A specific declaration must also be made in the SWIFT system.",
+    "forms_and_documents": "Shipping Bill (SB), Electronic Bank Realization Certificate (e-BRC)"
+  },
+  {
+    "topic": "Export Incentive Schemes",
+    "sub_topic": "EPCG",
+    "acronym": "Export Promotion Capital Goods",
+    "description": "The EPCG scheme allows the import of capital goods for pre-production, production, and post-production at zero customs duty, subject to an export obligation equivalent to 6 times of duty saved on capital goods imported under EPCG scheme, to be fulfilled in 6 years.",
+    "how_to_claim": "Exporters must obtain an EPCG Authorization from DGFT before import. When exporting goods manufactured using these capital goods, the Shipping Bill must cite the EPCG Authorization number and date to count towards fulfilling the export obligation.",
+    "forms_and_documents": "EPCG Authorization, Shipping Bill (SB) with EPCG details, Installation Certificate"
+  },
+  {
+    "topic": "Export Incentive Schemes",
+    "sub_topic": "Advance Authorization",
+    "acronym": "AA",
+    "description": "Advance Authorization is issued to allow duty-free import of inputs, which are physically incorporated in export products (making normal allowance for wastage).",
+    "how_to_claim": "Exporters must apply for AA from DGFT. The inputs imported duty-free must be used to manufacture the export product. The Shipping Bill for the export must mention the Advance Authorization number and date to ensure the export is logged against the specific authorization for obligation fulfillment.",
+    "forms_and_documents": "Advance Authorization (AA), Shipping Bill (SB) with AA details, Standard Input Output Norms (SION)"
+  }
+]

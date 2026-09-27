@@ -1,0 +1,14 @@
+{
+  "name": "US-India Trade Relations",
+  "partner_countries": ["US"],
+  "effective_date": "1947-01-01",
+  "key_benefits": "Access to the US market under Most Favored Nation (MFN) tariff rates.",
+  "origin_criteria": "Standard rules of origin applicable for MFN treatment.",
+  "certificate_form_name": "CBP Form 7501 (Entry Summary)",
+  "sectors_covered": ["Pharmaceuticals", "Food and Agriculture", "Textiles", "IT"],
+  "specific_regulations": {
+    "food_and_agriculture": "Must be registered with the US FDA and comply with the Food Safety Modernization Act (FSMA). Prior notice of imported food shipments must be submitted to the FDA.",
+    "pharmaceuticals": "Facilities must undergo FDA inspection and adhere to Current Good Manufacturing Practices (cGMP). Exporting Indian pharma requires NDA/ANDA approvals.",
+    "customs": "All commercial shipments require filing CBP Form 3461 (Customs Release) and CBP Form 7501 (Entry Summary). US CBP MFN tariffs apply to Indian goods."
+  }
+}

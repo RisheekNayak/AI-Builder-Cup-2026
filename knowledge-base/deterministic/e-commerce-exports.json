@@ -1,0 +1,18 @@
+[
+  {
+    "topic": "E-Commerce Exports",
+    "sub_topic": "CSB-V Guidelines",
+    "acronyms": {
+      "DGFT": "Directorate General of Foreign Trade",
+      "CSB-V": "Courier Shipping Bill - V",
+      "RBI": "Reserve Bank of India",
+      "EDPMS": "Export Data Processing and Monitoring System",
+      "AD": "Authorized Dealer (Bank)"
+    },
+    "description": "CSB-V is a simplified Shipping Bill designed for commercial exports through the courier mode, facilitating e-commerce exports from India.",
+    "value_limits": "Under the current DGFT and Customs guidelines, the maximum value per consignment for export under CSB-V is Rs. 10,00,000 (10 Lakh INR).",
+    "payment_realization": "For e-commerce exports through CSB-V, payment realization is monitored by the RBI through the EDPMS. Exporters must ensure that the remittances are received through authorized banking channels (AD Banks) and that the electronic Bank Realization Certificate (e-BRC) is generated to close the export entry in EDPMS.",
+    "compliance_requirements": "Exporters must possess an Importer-Exporter Code (IEC). The GSTIN should also be declared. The CSB-V allows for the claiming of benefits like RoDTEP, provided the intent is declared during filing.",
+    "forms_and_documents": "Courier Shipping Bill V (CSB-V), Commercial Invoice, Airway Bill (AWB), e-BRC (for payment realization)"
+  }
+]

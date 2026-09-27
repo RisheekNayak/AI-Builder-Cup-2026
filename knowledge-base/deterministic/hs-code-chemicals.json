@@ -1,0 +1,52 @@
+{
+  "domain": "Chemicals (Organic and Inorganic)",
+  "chapters": ["28", "29"],
+  "hs_codes": [
+    {
+      "code": "29012100",
+      "description": "Acyclic hydrocarbons - Unsaturated : Ethylene"
+    },
+    {
+      "code": "29022000",
+      "description": "Cyclic hydrocarbons - Benzene"
+    },
+    {
+      "code": "29051100",
+      "description": "Acyclic alcohols and their halogenated, sulphonated, nitrated or nitrosated derivatives - Methanol (methyl alcohol)"
+    }
+  ],
+  "eu_compliance": {
+    "framework": "REACH",
+    "full_name": "Registration, Evaluation, Authorisation and Restriction of Chemicals",
+    "requirements": [
+      "Only Representative (OR) appointment for non-EU manufacturers.",
+      "Registration dossier submission to ECHA (European Chemicals Agency) for substances manufactured or imported in quantities of 1 tonne or more per year.",
+      "Provision of compliant Safety Data Sheets (SDS)."
+    ]
+  },
+  "export_regulations_india": {
+    "regulatory_body": "Directorate General of Foreign Trade (DGFT)",
+    "requirements": [
+      {
+        "document": "No Objection Certificate (NOC) / Export License",
+        "context": "Required for exporting dual-use chemicals listed under SCOMET (Special Chemicals, Organisms, Materials, Equipment and Technologies)."
+      }
+    ]
+  },
+  "hazardous_materials_handling": {
+    "documentation": [
+      {
+        "form": "Safety Data Sheet (SDS)",
+        "description": "A standardized document containing occupational safety and health data."
+      },
+      {
+        "form": "Dangerous Goods (DG) Declaration",
+        "description": "Required by freight forwarders and airlines/shipping lines as per IATA/IMDG codes."
+      },
+      {
+        "form": "TREM Card (Transport Emergency Card)",
+        "description": "Provides instructions to the driver in case of an emergency during transport."
+      }
+    ]
+  }
+}

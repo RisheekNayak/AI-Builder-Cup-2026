@@ -1,0 +1,20 @@
+[
+  {
+    "topic": "Customs Valuation for Exports",
+    "sub_topic": "FOB vs CIF Valuation",
+    "acronyms": {
+      "FOB": "Free On Board",
+      "CIF": "Cost, Insurance, and Freight"
+    },
+    "description": "For Indian exports, customs valuation is generally based on the transaction value. The Free On Board (FOB) value is the primary basis for calculating export benefits (like RoDTEP) and sometimes export duties. CIF includes the cost of the goods, marine insurance, and ocean freight to the destination port.",
+    "rules": "Under Section 14 of the Customs Act, 1962, the value of export goods shall be the transaction value, which is the price actually paid or payable for the goods when sold for export from India. If the contract is on CIF terms, the freight and insurance elements must be deducted to arrive at the FOB value for customs purposes.",
+    "commercial_invoice_declaration": "The Commercial Invoice must clearly state the Incoterm (e.g., FOB Mumbai, CIF New York). If the term is CIF, the invoice should ideally bifurcate the total value into FOB value, Freight charges, and Insurance charges to facilitate accurate assessment by Customs."
+  },
+  {
+    "topic": "Customs Valuation for Exports",
+    "sub_topic": "Declaring Freight and Insurance",
+    "description": "Accurate declaration of freight and insurance is crucial for correct valuation.",
+    "how_to_declare": "On the Commercial Invoice and the Shipping Bill (SB), the exporter must declare the actual freight and insurance amounts if they are known. If the exact amounts are not known at the time of filing the SB (e.g., in FOB contracts where the buyer pays freight), the standard practice or estimated rates might be applied by the system, but the invoice should clearly indicate who is bearing these costs.",
+    "forms_and_documents": "Commercial Invoice, Shipping Bill (SB), Bill of Lading (B/L) or Airway Bill (AWB) showing freight amounts, Insurance Policy/Certificate"
+  }
+]

@@ -1,0 +1,46 @@
+{
+  "domain": "Agriculture and Spices",
+  "chapters": ["09"],
+  "hs_codes": [
+    {
+      "code": "09041110",
+      "description": "Pepper of the genus Piper; dried or crushed or ground - Neither crushed nor ground : Black pepper"
+    },
+    {
+      "code": "09083110",
+      "description": "Cardamoms - Neither crushed nor ground - Alleppey Green"
+    },
+    {
+      "code": "09103030",
+      "description": "Turmeric (curcuma) - Powder"
+    }
+  ],
+  "regulatory_bodies": [
+    {
+      "name": "APEDA",
+      "full_name": "Agricultural and Processed Food Products Export Development Authority",
+      "registration_requirements": {
+        "certificate": "Registration-cum-Membership Certificate (RCMC)",
+        "necessity": "Mandatory for exporting scheduled agricultural products.",
+        "application_portal": "APEDA online e-governance system"
+      }
+    },
+    {
+      "name": "Spices Board of India",
+      "role": "Regulatory and export promotion body for Indian spices."
+    }
+  ],
+  "certifications_and_inspections": [
+    {
+      "name": "Phytosanitary Certificate",
+      "issuing_body": "Directorate of Plant Protection, Quarantine & Storage (DPPQS), Ministry of Agriculture",
+      "rules": "Mandatory for all agricultural exports to certify that the plants/plant products are free from regulated pests and conform to the phytosanitary requirements of the importing country.",
+      "application_system": "PQIS (Plant Quarantine Information System) / e-Sanchit"
+    },
+    {
+      "name": "Health Certificate",
+      "issuing_body": "Export Inspection Council (EIC)",
+      "rules": "Required for food safety compliance."
+    }
+  ]
+}

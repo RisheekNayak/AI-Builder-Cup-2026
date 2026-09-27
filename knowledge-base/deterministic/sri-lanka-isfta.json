@@ -1,0 +1,12 @@
+{
+  "name": "Indo-Sri Lanka Free Trade Agreement (ISFTA)",
+  "partner_countries": ["LK"],
+  "effective_date": "2000-03-01",
+  "key_benefits": "Significant duty concessions for pharmaceutical exports. Indian medicines and pharmaceutical products exported to Sri Lanka can claim 100% duty exemption under ISFTA.",
+  "origin_criteria": "Minimum 35% domestic value addition.",
+  "certificate_form_name": "ISFTA Certificate of Origin",
+  "sectors_covered": ["Pharmaceuticals", "Textiles", "Machinery"],
+  "specific_regulations": {
+    "pharmaceuticals": "All medicines must be pre-registered with the Sri Lanka National Medicines Regulatory Authority (NMRA). An NMRA Import License is strictly required. A Certificate of Pharmaceutical Product (CPP) issued by the Indian CDSCO must accompany the ICEGATE Shipping Bill."
+  }
+}
