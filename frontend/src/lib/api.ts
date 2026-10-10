@@ -1,4 +1,4 @@
-import { Shipment, RiskReport, GeneratedForm, ChatMessage, CompanyProfile, ExtractedData } from './types';
+import { Shipment, RiskReport, CompanyProfile, ExtractedData } from './types';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -105,7 +105,12 @@ export async function saveCompanyProfile(profile: CompanyProfile): Promise<{ sta
       signatory_designation: profile.signatoryDesignation,
     }),
   });
-  if (!response.ok) throw new Error('Failed to save company profile');
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const detail = body?.detail;
+    const message = typeof detail === 'string' ? detail : Array.isArray(detail) ? detail.map((item: { msg: string }) => item.msg).join(' ') : 'Failed to save company profile. Please try again.';
+    throw new Error(message);
+  }
   return response.json();
 }
 

@@ -3,9 +3,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Anchor, LayoutDashboard, MessageSquare, Upload, History, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useCompany } from '@/components/company/CompanyProvider';
 
-export function Sidebar() {
+export function Sidebar({ open, onNavigate }: { open: boolean; onNavigate: () => void }) {
   const pathname = usePathname();
+  const { profile } = useCompany();
 
   const navItems = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -16,7 +18,7 @@ export function Sidebar() {
   ];
 
   return (
-    <div className="flex h-screen w-64 flex-col bg-indigo-950 text-white">
+    <aside id="workspace-navigation" className={cn('fixed inset-y-0 left-0 z-30 flex w-60 shrink-0 flex-col bg-indigo-950 text-white transition-transform md:static md:translate-x-0', open ? 'translate-x-0' : '-translate-x-full')}>
       <div className="flex h-16 items-center px-6 border-b border-indigo-900">
         <Anchor className="h-6 w-6 text-indigo-400 mr-2" />
         <span className="text-xl font-bold tracking-tight">ShipSure</span>
@@ -24,11 +26,13 @@ export function Sidebar() {
       <div className="flex-1 overflow-y-auto py-4">
         <nav className="space-y-1 px-3">
           {navItems.map((item) => {
-            const isActive = pathname === item.href || (pathname.startsWith(item.href + '/') && item.href !== '/');
+            const isActive = pathname === item.href || (item.href === '/shipments' && pathname.startsWith('/shipments/') && pathname !== '/shipments/new');
             return (
               <Link
                 key={item.name}
                 href={item.href}
+                onClick={onNavigate}
+                aria-current={isActive ? 'page' : undefined}
                 className={cn(
                   'group flex items-center rounded-md px-3 py-2 text-sm font-medium',
                   isActive
@@ -49,6 +53,7 @@ export function Sidebar() {
           })}
         </nav>
       </div>
-    </div>
+      <div className="border-t border-indigo-900 px-6 py-5"><p className="truncate text-sm font-medium">{profile?.name}</p><p className="mt-1 text-xs text-indigo-300">Your company workspace</p></div>
+    </aside>
   );
 }
