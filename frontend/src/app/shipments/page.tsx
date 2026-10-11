@@ -1,8 +1,7 @@
 'use client';
-import { useRouter } from 'next/navigation';
-import { ShipmentHistory } from '@/components/shipments/ShipmentHistory';
+import { StandalonePanel } from '@/components/workspace/StandalonePanel';
+import { historyPanel } from '@/lib/workspace';
 
 export default function ShipmentHistoryPage() {
-  const router = useRouter();
-  return <ShipmentHistory onSelect={shipment => router.push(`/shipments/${shipment.id}`)} onNew={() => router.push('/shipments/new')} />;
+  return <StandalonePanel panel={historyPanel} />;
 }

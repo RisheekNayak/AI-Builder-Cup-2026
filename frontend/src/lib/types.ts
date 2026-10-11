@@ -50,29 +50,26 @@ export interface RiskReport {
   requiredForms: string[];
   dutySavings?: string;
   analysisSummary?: string;
+  mode: 'ai' | 'rules';
 }
+
+export interface FtaMatch { name: string; originCriteria: string; certificate: string; benefits: string }
 
 export interface Shipment {
   id: string;
   filename: string;
-  status: 'uploaded' | 'extracting' | 'analyzing' | 'complete' | 'error';
+  status: 'uploaded' | 'extracting' | 'analyzing' | 'complete' | 'analysis_failed' | 'error';
+  error?: string | null;
   extractedData?: ExtractedData;
   riskReport?: RiskReport;
+  ftaMatches: FtaMatch[];
+  scometFlags: { item: string; name: string }[];
   createdAt: string;
 }
 
-export interface GeneratedForm {
+export interface ShipmentForm {
   id: string;
-  shipmentId: string;
-  formType: string;
-  fileUrl: string;
-  generatedAt: string;
-}
-
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  citations?: string[];
-  timestamp: string;
+  name: string;
+  status: 'generated' | 'not_generated' | 'unsupported';
+  reason: string;
 }

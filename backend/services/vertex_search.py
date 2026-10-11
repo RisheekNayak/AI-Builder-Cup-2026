@@ -40,24 +40,42 @@ async def search(query: str, top_k: int = 5) -> List[dict]:
         except Exception as e:
             logger.error(f"GCP Vertex Search error: {e}, falling back to demo mode")
             
-    kb_dir = PROJECT_ROOT / "knowledge-base" / "deterministic"
+    return local_search(query, top_k)
+
+
+STOPWORDS = {"the", "a", "an", "of", "to", "for", "from", "in", "on", "and", "or", "is", "are", "what", "which", "how", "do",
+             "does", "i", "my", "we", "our", "export", "india", "items", "need", "with", "by", "can", "it", "this", "that"}
+
+
+def _records(data):
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        for value in data.values():
+            if isinstance(value, list) and value and isinstance(value[0], dict):
+                return value
+        return [data]
+    return []
+
+
+def local_search(query: str, top_k: int = 5) -> List[dict]:
+    """Offline retrieval over the knowledge-base JSON: returns the matching records themselves as passages."""
+    import json
+    import re
+    terms = [t for t in re.findall(r"[a-z0-9]+", query.lower()) if t not in STOPWORDS and len(t) > 1]
     results = []
-    query_terms = query.lower().split()
-    
-    if kb_dir.exists():
-        for file_path in kb_dir.glob("*.json"):
-            try:
-                with open(file_path, "r") as f:
-                    content_str = f.read()
-                    score = sum(1 for term in query_terms if term in content_str.lower())
-                    if score > 0:
-                        results.append({
-                            "content": f"Match found in {file_path.name}. Score: {score}",
-                            "source": file_path.name,
-                            "relevance_score": float(score)
-                        })
-            except Exception as e:
-                pass
-            
+    for file_path in (PROJECT_ROOT / "knowledge-base" / "deterministic").glob("*.json"):
+        try:
+            records = _records(json.loads(file_path.read_text()))
+        except (OSError, ValueError):
+            continue
+        for record in records:
+            text = json.dumps(record, ensure_ascii=False)
+            lower = text.lower()
+            score = sum(1 for t in terms if re.search(rf"\b{re.escape(t)}\b", lower))
+            if score:
+                title = record.get("name") or record.get("description") or record.get("id") if isinstance(record, dict) else None
+                results.append({"title": f"{title} ({file_path.stem})" if title else file_path.stem,
+                                "content": text[:600], "source": file_path.name, "relevance_score": float(score)})
     results.sort(key=lambda x: x["relevance_score"], reverse=True)
     return results[:top_k]

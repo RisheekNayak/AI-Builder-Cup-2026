@@ -13,3 +13,6 @@ sqlalchemy
 asyncpg
 psycopg2-binary
 httpx
+google-genai
+pypdf
+pytest

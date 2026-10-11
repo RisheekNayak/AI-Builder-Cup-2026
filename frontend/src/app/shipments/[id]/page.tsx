@@ -1,8 +1,9 @@
 'use client';
 import { useParams } from 'next/navigation';
-import { ShipmentDetails } from '@/components/shipments/ShipmentDetails';
+import { StandalonePanel } from '@/components/workspace/StandalonePanel';
+import { shipmentPanel } from '@/lib/workspace';
 
 export default function ShipmentDetailPage() {
   const { id } = useParams<{ id: string }>();
-  return <ShipmentDetails key={id} id={id} />;
+  return <StandalonePanel key={id} panel={shipmentPanel(id)} />;
 }

@@ -1,8 +1,7 @@
 'use client';
-import { useRouter } from 'next/navigation';
-import { NewShipmentForm } from '@/components/shipments/NewShipmentForm';
+import { StandalonePanel } from '@/components/workspace/StandalonePanel';
+import { newShipmentPanel } from '@/lib/workspace';
 
 export default function NewShipment() {
-  const router = useRouter();
-  return <NewShipmentForm onUploaded={id => router.push(`/shipments/${id}`)} />;
+  return <StandalonePanel panel={newShipmentPanel} />;
 }

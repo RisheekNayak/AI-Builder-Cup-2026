@@ -7,11 +7,18 @@ export function Header({ onMenuToggle, menuOpen }: { onMenuToggle: () => void; m
   const pathname = usePathname();
   const { reset, pending } = useWorkspace();
   
-  let title = 'Dashboard';
+  let title = 'Assistant';
   if (pathname.includes('/advisor')) title = 'Trade Advisor';
   else if (pathname.includes('/shipments/new')) title = 'New Shipment';
-  else if (pathname.includes('/shipments/') && pathname !== '/shipments/new') title = 'Shipment Details';
+  else if (pathname.includes('/shipments/')) title = 'Shipment Details';
   else if (pathname.includes('/shipments')) title = 'Shipment History';
+  else if (pathname === '/orders/new') title = 'Add Customer PO';
+  else if (pathname.startsWith('/orders/')) title = 'Order';
+  else if (pathname.startsWith('/orders')) title = 'Orders';
+  else if (pathname.startsWith('/receivables/')) title = 'Customer Statement';
+  else if (pathname.startsWith('/receivables')) title = 'Receivables';
+  else if (pathname.startsWith('/stock')) title = 'Stock';
+  else if (pathname.startsWith('/gst')) title = 'GST';
   else if (pathname.includes('/settings')) title = 'Settings';
 
   return (

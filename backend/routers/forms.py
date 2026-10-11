@@ -1,47 +1,79 @@
-from fastapi import APIRouter, HTTPException, Response
-from backend.routers.upload import shipments_db
+from fastapi import APIRouter, Depends, HTTPException, Response
+from sqlalchemy.orm import Session
+from backend.db import get_db
+from backend.models.shipment import ExtractedData
+from backend.models.risk_report import RiskReport
 from backend.routers.company import get_company_profile
-from backend.services.form_generator import generate_shipping_bill, generate_certificate_of_origin, generate_end_user_undertaking
+from backend.routers.upload import FORMS_DIR, get_record
+from backend.services.business_common import BusinessError
+from backend.services.form_generator import FormGenerationError, generate_certificate_of_origin, generate_shipping_bill
 
 router = APIRouter()
-forms_db = {}
+FORM_NAMES = {"shipping_bill": "Shipping Bill", "coo": "Certificate of Origin", "euu": "End User Undertaking"}
+UNSUPPORTED = {"euu": "Not supported yet. Prepare it with the SCOMET licence application on the DGFT portal."}
+
+
+def required_form_ids(rec) -> list[str]:
+    names = [n.lower() for n in (rec.risk_report or {}).get("required_forms", [])]
+    ids = ["shipping_bill"]
+    if any("origin" in n for n in names) or rec.fta_matches:
+        ids.append("coo")
+    if any("end user" in n or "euu" in n for n in names) or rec.scomet_flags:
+        ids.append("euu")
+    return ids
+
+
+def _reason(form_id: str, rec) -> str:
+    if form_id == "shipping_bill":
+        return "Needed for every export clearance (file on ICEGATE through your customs broker)."
+    if form_id == "coo":
+        return f"Claims preferential duty under {rec.fta_matches[0]['name']}." if rec.fta_matches else "Buyer or bank may ask for proof of origin."
+    return "Required because an item may fall under SCOMET."
+
 
 @router.post("/{shipment_id}/generate")
-def generate_forms(shipment_id: str):
-    if shipment_id not in shipments_db:
-        raise HTTPException(status_code=404, detail="Shipment not found")
-        
-    shipment = shipments_db[shipment_id]
-    if shipment.status != "complete" or not shipment.extracted_data:
-        raise HTTPException(status_code=400, detail="Shipment analysis not complete")
-        
-    company_profile = get_company_profile()
-    
-    sb_pdf = generate_shipping_bill(shipment.extracted_data, company_profile, None)
-    forms_db[f"{shipment_id}_shipping_bill"] = sb_pdf
-    
-    co_pdf = generate_certificate_of_origin(shipment.extracted_data, company_profile, [])
-    forms_db[f"{shipment_id}_coo"] = co_pdf
-    
-    euu_pdf = generate_end_user_undertaking(shipment.extracted_data, company_profile, [])
-    forms_db[f"{shipment_id}_euu"] = euu_pdf
-    
-    return {"status": "Forms generated successfully"}
+def generate_forms(shipment_id: str, db: Session = Depends(get_db)):
+    rec = get_record(db, shipment_id)
+    if rec.status != "complete" or not rec.extracted_data:
+        raise BusinessError("Run the compliance analysis before generating forms.")
+    data = ExtractedData(**rec.extracted_data)
+    profile = get_company_profile()
+    FORMS_DIR.mkdir(parents=True, exist_ok=True)
+    generated = []
+    try:
+        for form_id in required_form_ids(rec):
+            if form_id == "shipping_bill":
+                pdf = generate_shipping_bill(data, profile, RiskReport(**rec.risk_report) if rec.risk_report else None)
+            elif form_id == "coo":
+                pdf = generate_certificate_of_origin(data, profile, rec.fta_matches or [])
+            else:
+                continue
+            (FORMS_DIR / f"{rec.id}_{form_id}.pdf").write_bytes(pdf)
+            generated.append(form_id)
+    except FormGenerationError as error:
+        raise BusinessError(str(error))
+    rec.generated_forms = generated
+    db.commit()
+    return {"status": "generated", "forms": list_forms(shipment_id, db)["forms"]}
+
 
 @router.get("/{shipment_id}/forms")
-def list_forms(shipment_id: str):
-    return {
-        "forms": [
-            {"id": "shipping_bill", "name": "Shipping Bill"},
-            {"id": "coo", "name": "Certificate of Origin"},
-            {"id": "euu", "name": "End User Undertaking"}
-        ]
-    }
+def list_forms(shipment_id: str, db: Session = Depends(get_db)):
+    rec = get_record(db, shipment_id)
+    generated = set(rec.generated_forms or [])
+    forms = []
+    for form_id in required_form_ids(rec):
+        status = "unsupported" if form_id in UNSUPPORTED else ("generated" if form_id in generated else "not_generated")
+        forms.append({"id": form_id, "name": FORM_NAMES[form_id], "status": status,
+                      "reason": UNSUPPORTED.get(form_id) or _reason(form_id, rec)})
+    return {"forms": forms}
+
 
 @router.get("/{shipment_id}/forms/{form_id}/download")
-def download_form(shipment_id: str, form_id: str):
-    key = f"{shipment_id}_{form_id}"
-    if key not in forms_db:
-        raise HTTPException(status_code=404, detail="Form not found")
-        
-    return Response(content=forms_db[key], media_type="application/pdf")
+def download_form(shipment_id: str, form_id: str, db: Session = Depends(get_db)):
+    rec = get_record(db, shipment_id)
+    path = FORMS_DIR / f"{rec.id}_{form_id}.pdf"
+    if form_id not in (rec.generated_forms or []) or not path.exists():
+        raise HTTPException(status_code=404, detail="Form not generated yet")
+    return Response(content=path.read_bytes(), media_type="application/pdf",
+                    headers={"Content-Disposition": f'inline; filename="{FORM_NAMES.get(form_id, form_id)}.pdf"'})

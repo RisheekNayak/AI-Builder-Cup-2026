@@ -1,95 +1,72 @@
-import { Shipment, RiskReport, CompanyProfile, ExtractedData } from './types';
+import { Shipment, RiskReport, CompanyProfile, ExtractedData, ShipmentForm } from './types';
+import { API_BASE_URL, request } from './http';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+type UploadResult = { shipment_id: string; status: Shipment['status']; error?: string | null };
 
 // ============ Upload ============
-export async function uploadInvoice(file: File): Promise<{ shipment_id: string; status: string }> {
+export async function uploadInvoice(file: File): Promise<UploadResult> {
   const formData = new FormData();
   formData.append('file', file);
-  const response = await fetch(`${BASE_URL}/api/upload/`, {
-    method: 'POST',
-    body: formData,
-  });
-  if (!response.ok) throw new Error('Failed to upload invoice');
-  return response.json();
+  return request<UploadResult>('/api/upload/', { method: 'POST', body: formData });
+}
+
+export async function uploadSampleInvoice(name: 'clean-pass' | 'fta-eligible' | 'scomet-flag'): Promise<UploadResult> {
+  return request<UploadResult>(`/api/upload/sample/${name}`, { method: 'POST' });
 }
 
 // ============ Shipments ============
 export async function getShipments(): Promise<Shipment[]> {
-  const response = await fetch(`${BASE_URL}/api/upload/shipments`);
-  if (!response.ok) throw new Error('Failed to fetch shipments');
-  const data = await response.json();
+  const data = await request<{ shipments: Record<string, unknown>[] }>('/api/upload/shipments');
   return (data.shipments || []).map(mapShipment);
 }
 
 export async function getShipment(id: string): Promise<Shipment> {
-  const response = await fetch(`${BASE_URL}/api/upload/shipments/${id}`);
-  if (!response.ok) throw new Error('Failed to fetch shipment');
-  const data = await response.json();
-  return mapShipment(data);
+  return mapShipment(await request<Record<string, unknown>>(`/api/upload/shipments/${id}`));
 }
 
 // ============ Extraction ============
-export async function getExtractedData(shipmentId: string): Promise<ExtractedData | null> {
-  const response = await fetch(`${BASE_URL}/api/extraction/${shipmentId}`);
-  if (!response.ok) throw new Error('Failed to fetch extracted data');
-  const data = await response.json();
-  return data.extracted_data ? mapExtractedData(data.extracted_data) : null;
+export async function updateExtractedData(shipmentId: string, data: ExtractedData): Promise<Shipment> {
+  const raw = await request<Record<string, unknown>>(`/api/extraction/${shipmentId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(unmapExtractedData(data)),
+  });
+  return mapShipment(raw);
 }
 
 // ============ Compliance ============
-export async function getRiskReport(shipmentId: string): Promise<{ status: string; riskReport: RiskReport | null }> {
-  const response = await fetch(`${BASE_URL}/api/compliance/${shipmentId}/risk-report`);
-  if (!response.ok) throw new Error('Failed to fetch risk report');
-  const data = await response.json();
-  return {
-    status: data.status,
-    riskReport: data.risk_report ? mapRiskReport(data.risk_report) : null,
-  };
+export async function reanalyzeShipment(shipmentId: string): Promise<Shipment> {
+  return mapShipment(await request<Record<string, unknown>>(`/api/compliance/${shipmentId}/analyze`, { method: 'POST' }));
 }
 
 // ============ Forms ============
-export async function generateForms(shipmentId: string): Promise<{ status: string }> {
-  const response = await fetch(`${BASE_URL}/api/forms/${shipmentId}/generate`, {
-    method: 'POST',
-  });
-  if (!response.ok) throw new Error('Failed to generate forms');
-  return response.json();
+export async function generateForms(shipmentId: string): Promise<ShipmentForm[]> {
+  const data = await request<{ forms: ShipmentForm[] }>(`/api/forms/${shipmentId}/generate`, { method: 'POST' });
+  return data.forms || [];
 }
 
-export async function listForms(shipmentId: string): Promise<{ id: string; name: string }[]> {
-  const response = await fetch(`${BASE_URL}/api/forms/${shipmentId}/forms`);
-  if (!response.ok) throw new Error('Failed to list forms');
-  const data = await response.json();
+export async function listForms(shipmentId: string): Promise<ShipmentForm[]> {
+  const data = await request<{ forms: ShipmentForm[] }>(`/api/forms/${shipmentId}/forms`);
   return data.forms || [];
 }
 
 export function getFormDownloadUrl(shipmentId: string, formId: string): string {
-  return `${BASE_URL}/api/forms/${shipmentId}/forms/${formId}/download`;
-}
-
-// ============ Advisor ============
-export async function sendAdvisorMessage(message: string): Promise<{ reply: string; sources: string[] }> {
-  const response = await fetch(`${BASE_URL}/api/advisor/chat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message }),
-  });
-  if (!response.ok) throw new Error('Failed to send message');
-  return response.json();
+  return `${API_BASE_URL}/api/forms/${shipmentId}/forms/${formId}/download`;
 }
 
 // ============ Company Profile ============
 export async function getCompanyProfile(): Promise<CompanyProfile | null> {
-  const response = await fetch(`${BASE_URL}/api/company/`);
-  if (!response.ok) throw new Error('Failed to fetch company profile');
-  const data = await response.json();
-  if (!data) return null;
-  return mapCompanyProfile(data);
+  let data: Record<string, unknown> | null;
+  try {
+    data = await request<Record<string, unknown> | null>('/api/company/');
+  } catch {
+    throw new Error('Failed to fetch company profile');
+  }
+  return data ? mapCompanyProfile(data) : null;
 }
 
 export async function saveCompanyProfile(profile: CompanyProfile): Promise<{ status: string }> {
-  const response = await fetch(`${BASE_URL}/api/company/`, {
+  return request<{ status: string }>('/api/company/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -105,23 +82,22 @@ export async function saveCompanyProfile(profile: CompanyProfile): Promise<{ sta
       signatory_designation: profile.signatoryDesignation,
     }),
   });
-  if (!response.ok) {
-    const body = await response.json().catch(() => null);
-    const detail = body?.detail;
-    const message = typeof detail === 'string' ? detail : Array.isArray(detail) ? detail.map((item: { msg: string }) => item.msg).join(' ') : 'Failed to save company profile. Please try again.';
-    throw new Error(message);
-  }
-  return response.json();
 }
 
-// ============ Mappers (snake_case → camelCase) ============
+// ============ Mappers (snake_case ↔ camelCase) ============
 function mapShipment(raw: Record<string, unknown>): Shipment {
   return {
     id: (raw.id as string) || '',
     filename: (raw.filename as string) || '',
     status: (raw.status as Shipment['status']) || 'uploaded',
+    error: (raw.error as string) || null,
     extractedData: raw.extracted_data ? mapExtractedData(raw.extracted_data as Record<string, unknown>) : undefined,
     riskReport: raw.risk_report ? mapRiskReport(raw.risk_report as Record<string, unknown>) : undefined,
+    ftaMatches: ((raw.fta_matches as Record<string, unknown>[]) || []).map(m => ({
+      name: (m.name as string) || '', originCriteria: (m.origin_criteria as string) || '',
+      certificate: (m.certificate_form_name as string) || '', benefits: (m.key_benefits as string) || '',
+    })),
+    scometFlags: ((raw.scomet_flags as Record<string, unknown>[]) || []).map(f => ({ item: (f.item as string) || '', name: (f.name as string) || (f.category as string) || '' })),
     createdAt: (raw.created_at as string) || new Date().toISOString(),
   };
 }
@@ -150,6 +126,20 @@ function mapExtractedData(raw: Record<string, unknown>): ExtractedData {
   };
 }
 
+function unmapExtractedData(data: ExtractedData): Record<string, unknown> {
+  return {
+    seller_name: data.sellerName || null, seller_country: data.sellerCountry || null,
+    buyer_name: data.buyerName || null, buyer_country: data.buyerCountry || null,
+    port_of_loading: data.portOfLoading || null, port_of_discharge: data.portOfDischarge || null,
+    total_value: data.totalValue || null, currency: data.currency || null,
+    invoice_number: data.invoiceNumber || null, invoice_date: data.invoiceDate || null,
+    line_items: data.lineItems.map(item => ({
+      description: item.description, hs_code: item.hsCode || null, quantity: item.quantity || null,
+      unit_price: item.unitPrice || null, total_value: item.totalValue || null, weight: item.weight || null, unit: item.unit || null,
+    })),
+  };
+}
+
 function mapRiskReport(raw: Record<string, unknown>): RiskReport {
   return {
     overallScore: (raw.overall_score as RiskReport['overallScore']) || 'low',
@@ -161,8 +151,9 @@ function mapRiskReport(raw: Record<string, unknown>): RiskReport {
       recommendation: (f.recommendation as string) || '',
     })),
     requiredForms: (raw.required_forms as string[]) || [],
-    dutySavings: raw.duty_savings as string | undefined,
+    dutySavings: (raw.duty_savings as string) || undefined,
     analysisSummary: (raw.analysis_summary as string) || '',
+    mode: (raw.mode as RiskReport['mode']) || 'ai',
   };
 }
 
