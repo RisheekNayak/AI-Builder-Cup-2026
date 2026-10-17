@@ -1,6 +1,6 @@
 # Environment variables
 .env
-.env.*.local
+.env.*
 .env.local
 .env.production
 !.env.example
@@ -49,3 +49,9 @@ backend/data/forms/
 
 # Private artifact authoring files and temporary renders
 .artifact-build/
+
+# Locally generated assistant instruction files
+AGENTS.md
+CLAUDE.md
+*.log
+.pytest_cache/
