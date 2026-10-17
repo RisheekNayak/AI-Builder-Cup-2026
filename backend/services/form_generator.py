@@ -7,6 +7,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+class FormGenerationError(RuntimeError):
+    pass
+
 def generate_shipping_bill(extracted_data: ExtractedData, company_profile: Optional[CompanyProfile], risk_report: Optional[RiskReport]) -> bytes:
     try:
         from reportlab.lib import colors
@@ -141,7 +145,7 @@ def generate_shipping_bill(extracted_data: ExtractedData, company_profile: Optio
         return buffer.getvalue()
     except Exception as e:
         logger.error(f"PDF generation error: {e}")
-        return b"PDF Generation Error"
+        raise FormGenerationError("Could not generate the Shipping Bill PDF.") from e
 
 def generate_certificate_of_origin(extracted_data: ExtractedData, company_profile: Optional[CompanyProfile], fta_info: list) -> bytes:
     try:
@@ -160,13 +164,16 @@ def generate_certificate_of_origin(extracted_data: ExtractedData, company_profil
         normal_style = ParagraphStyle('NormalStyle', parent=styles['Normal'], fontName='Helvetica', fontSize=9)
         
         elements.append(Paragraph("CERTIFICATE OF ORIGIN", header_style))
-        elements.append(Paragraph("Issued under the relevant Free Trade Agreement (ISFTA / CEPA / ECTA)", ParagraphStyle('Sub', alignment=1, spaceAfter=30)))
+        agreement = fta_info[0].get("name") if fta_info else None
+        subtitle = f"Issued under {agreement}" if agreement else "Non-preferential. No Indian FTA covers the destination"
+        elements.append(Paragraph(subtitle, ParagraphStyle('Sub', alignment=1, spaceAfter=6)))
+        elements.append(Paragraph("DRAFT for review. File through the DGFT eCoO portal; origin criterion must be confirmed by the exporter.", ParagraphStyle('Draft', alignment=1, fontSize=8, textColor=colors.red, spaceAfter=24)))
 
         exp_name = company_profile.name if company_profile else "Not Provided"
         
         grid_data = [
             [Paragraph("<b>1. Goods consigned from (Exporter's business name, address, country)</b><br/>" + f"{exp_name}<br/>India", normal_style), 
-             Paragraph(f"<b>Reference No:</b> CERT-{extracted_data.invoice_number or '001'}<br/><br/><b>PREFERENTIAL TARIFF CERTIFICATE</b>", normal_style)],
+             Paragraph(f"<b>Invoice reference:</b> {extracted_data.invoice_number or 'Not provided'}<br/><br/><b>{'PREFERENTIAL' if agreement else 'NON-PREFERENTIAL'} CERTIFICATE (DRAFT)</b>", normal_style)],
             [Paragraph("<b>2. Goods consigned to (Consignee's name, address, country)</b><br/>" + f"{extracted_data.buyer_name or 'N/A'}<br/>{extracted_data.buyer_country or ''}", normal_style),
              Paragraph("<b>For Official Use Only:</b><br/>Issued in India", normal_style)]
         ]
@@ -180,7 +187,7 @@ def generate_certificate_of_origin(extracted_data: ExtractedData, company_profil
         ]))
         elements.append(t1)
         
-        item_headers = ["Item No.", "Marks & Numbers", "Number and kind of packages; description of goods", "Origin Criterion", "Gross Weight"]
+        item_headers = ["Item No.", "Marks & Numbers", "Number and kind of packages; description of goods", "Origin Criterion", "Quantity"]
         item_data = [item_headers]
         
         for idx, item in enumerate(extracted_data.line_items):
@@ -188,8 +195,8 @@ def generate_certificate_of_origin(extracted_data: ExtractedData, company_profil
                 str(idx + 1),
                 "N/M",
                 Paragraph(item.description or "N/A", normal_style),
-                "WO (Wholly Obtained)",
-                f"{item.quantity or 1} {item.unit or 'KGS'}"
+                "To be confirmed",
+                f"{item.quantity:g} {item.unit or ''}".strip() if item.quantity else "Not provided"
             ])
             
         t2 = Table(item_data, colWidths=[0.6*inch, 1.2*inch, 3.2*inch, 1.2*inch, 1.2*inch])
@@ -207,19 +214,7 @@ def generate_certificate_of_origin(extracted_data: ExtractedData, company_profil
         return buffer.getvalue()
     except Exception as e:
         logger.error(f"COO PDF error: {e}")
-        return b"Error"
+        raise FormGenerationError("Could not generate the Certificate of Origin PDF.") from e
 
 def generate_end_user_undertaking(extracted_data: ExtractedData, company_profile: Optional[CompanyProfile], scomet_flags: list) -> bytes:
-    try:
-        from reportlab.lib import colors
-        from reportlab.lib.pagesizes import A4
-        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-        
-        buffer = io.BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=A4)
-        elements = [Paragraph("END USER UNDERTAKING (EUU)", getSampleStyleSheet()['Heading1'])]
-        doc.build(elements)
-        return buffer.getvalue()
-    except Exception:
-        return b""
+    raise FormGenerationError("The End User Undertaking is not supported yet. Prepare it with the SCOMET licence application on the DGFT portal.")

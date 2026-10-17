@@ -1,29 +1,20 @@
 from fastapi import APIRouter
 from backend.models.company import CompanyProfile
-from pathlib import Path
-import json
-import os
+from backend.services.storage import get_storage
 
 router = APIRouter()
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-COMPANY_FILE = PROJECT_ROOT / "backend" / "data" / "company-profile.json"
 
 def get_company_profile() -> CompanyProfile | None:
-    if os.path.exists(COMPANY_FILE):
-        try:
-            with open(COMPANY_FILE, "r") as f:
-                data = json.load(f)
-                return CompanyProfile(**data)
-        except Exception:
-            return None
-    return None
+    raw = get_storage().read("data/company-profile.json")
+    return CompanyProfile.model_validate_json(raw) if raw is not None else None
+
 
 @router.get("/")
 def read_company_profile():
     return get_company_profile()
 
+
 @router.post("/")
 def save_company_profile(profile: CompanyProfile):
-    with open(COMPANY_FILE, "w") as f:
-        f.write(profile.model_dump_json())
+    get_storage().write("data/company-profile.json", profile.model_dump_json().encode(), "application/json")
     return {"status": "saved"}

@@ -14,3 +14,4 @@ class RiskReport(BaseModel):
     required_forms: List[str]
     duty_savings: Optional[str] = None
     analysis_summary: str
+    mode: Literal['ai', 'rules'] = 'ai'

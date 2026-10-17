@@ -10,6 +10,9 @@ frontend/node_modules/
 frontend/.next/
 frontend/out/
 frontend/build/
+frontend/test-results/
+frontend/playwright-report/
+frontend/tsconfig.tsbuildinfo
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -41,3 +44,8 @@ backend/data/*
 *.swo
 .DS_Store
 Thumbs.db
+backend/data/shipsure.db
+backend/data/forms/
+
+# Private artifact authoring files and temporary renders
+.artifact-build/
