@@ -18,17 +18,21 @@ logging.basicConfig(level=logging.INFO)
 
 from backend import config, db
 from backend.services.business_common import BusinessError
+from google.api_core.exceptions import GoogleAPICallError
+from backend.services.storage import get_storage
+from backend.services.firestore_state import StateConflict, StateCapacityError
 from backend.services.deterministic import load_data
-from backend.services.seed import seed_if_empty
 from backend.routers import upload, compliance, forms, advisor, company, extraction, orders, receivables, workspace
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     load_data()
-    db.init_db()
-    with db.SessionLocal() as session:
-        seed_if_empty(session)
+    get_storage()
+    if os.getenv("SHIPSURE_REQUIRE_DURABLE_STORAGE", "false").lower() == "true":
+        if (db.engine.dialect.name != "postgresql" and os.getenv("SHIPSURE_DATABASE_BACKEND") != "firestore") or os.getenv("SHIPSURE_STORAGE_BACKEND") != "gcs":
+            raise RuntimeError("Durable mode requires Firestore/PostgreSQL and GCS; local fallback is disabled")
+    db.bootstrap()
     logging.info("ShipSure backend started")
     yield
 
@@ -41,6 +45,22 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(StateConflict)
+async def state_conflict_handler(request: Request, error: StateConflict):
+    return JSONResponse(status_code=409, content={"detail": str(error)})
+
+
+@app.exception_handler(StateCapacityError)
+async def state_capacity_handler(request: Request, error: StateCapacityError):
+    return JSONResponse(status_code=413, content={"detail": str(error)})
+
+
+@app.exception_handler(GoogleAPICallError)
+async def storage_error_handler(request: Request, error: GoogleAPICallError):
+    logging.error("Cloud storage unavailable: %s", type(error).__name__)
+    return JSONResponse(status_code=503, content={"detail": "Document storage is unavailable. Please try again."})
 
 
 @app.exception_handler(BusinessError)

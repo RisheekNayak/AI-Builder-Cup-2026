@@ -1,6 +1,8 @@
+import os
+import secrets
 from datetime import date
 from typing import Literal, Optional
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -93,7 +95,19 @@ def update_task(task_id: int, payload: TaskUpdate, db: Session = Depends(get_db)
     return inbox.task_view(task)
 
 
-@router.post("/demo/reset")
+def authorize_demo_reset(x_demo_reset_token: str | None = Header(default=None)):
+    if os.getenv("ENABLE_DEMO_RESET", "false").lower() != "true":
+        raise HTTPException(status_code=404, detail="Not found")
+    expected = os.getenv("DEMO_RESET_TOKEN", "")
+    if not expected or not x_demo_reset_token or not secrets.compare_digest(
+        x_demo_reset_token.encode("utf-8"), expected.encode("utf-8")
+    ):
+        raise HTTPException(status_code=403, detail="Demo reset is not authorized")
+
+
+@router.post("/demo/reset", dependencies=[Depends(authorize_demo_reset)])
 def reset_demo(db: Session = Depends(get_db)):
+    if os.getenv("SHIPSURE_DATABASE_BACKEND") == "firestore" or db.get_bind().dialect.name != "sqlite":
+        raise HTTPException(status_code=404, detail="Not found")
     seed.reset_and_seed(db)
     return {"status": "reset"}

@@ -16,3 +16,7 @@ httpx
 google-genai
 pypdf
 pytest
+
+cloud-sql-python-connector[pg8000]
+
+google-cloud-firestore

@@ -29,7 +29,7 @@ export default defineConfig({
       cwd: '..',
       url: `${TEST_API}/health`,
       reuseExistingServer: false,
-      env: { SHIPSURE_DATABASE_URL: `sqlite:///${testDb}`, ASSISTANT_MODE: 'offline', CORS_ORIGINS: 'http://127.0.0.1:3100' },
+      env: { SHIPSURE_DATABASE_BACKEND: 'sqlite', SHIPSURE_CLOUD_SQL_INSTANCE: '', SHIPSURE_REQUIRE_DURABLE_STORAGE: 'false', SHIPSURE_STORAGE_BACKEND: 'local', SHIPSURE_STORAGE_ROOT: `${testDb}-objects`, SHIPSURE_DATABASE_URL: `sqlite:///${testDb}`, ASSISTANT_MODE: 'offline', DEMO_MODE: 'true', ENABLE_DEMO_RESET: 'true', DEMO_RESET_TOKEN: 'isolated-e2e-only', SHIPSURE_TODAY: '2026-10-11', CORS_ORIGINS: 'http://127.0.0.1:3100' },
     },
   ],
 });

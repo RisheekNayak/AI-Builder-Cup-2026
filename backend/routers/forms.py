@@ -4,7 +4,8 @@ from backend.db import get_db
 from backend.models.shipment import ExtractedData
 from backend.models.risk_report import RiskReport
 from backend.routers.company import get_company_profile
-from backend.routers.upload import FORMS_DIR, get_record
+from backend.routers.upload import get_record
+from backend.services.storage import get_storage
 from backend.services.business_common import BusinessError
 from backend.services.form_generator import FormGenerationError, generate_certificate_of_origin, generate_shipping_bill
 
@@ -38,7 +39,6 @@ def generate_forms(shipment_id: str, db: Session = Depends(get_db)):
         raise BusinessError("Run the compliance analysis before generating forms.")
     data = ExtractedData(**rec.extracted_data)
     profile = get_company_profile()
-    FORMS_DIR.mkdir(parents=True, exist_ok=True)
     generated = []
     try:
         for form_id in required_form_ids(rec):
@@ -48,7 +48,7 @@ def generate_forms(shipment_id: str, db: Session = Depends(get_db)):
                 pdf = generate_certificate_of_origin(data, profile, rec.fta_matches or [])
             else:
                 continue
-            (FORMS_DIR / f"{rec.id}_{form_id}.pdf").write_bytes(pdf)
+            get_storage().write(f"data/forms/{rec.id}_{form_id}.pdf", pdf, "application/pdf")
             generated.append(form_id)
     except FormGenerationError as error:
         raise BusinessError(str(error))
@@ -72,8 +72,10 @@ def list_forms(shipment_id: str, db: Session = Depends(get_db)):
 @router.get("/{shipment_id}/forms/{form_id}/download")
 def download_form(shipment_id: str, form_id: str, db: Session = Depends(get_db)):
     rec = get_record(db, shipment_id)
-    path = FORMS_DIR / f"{rec.id}_{form_id}.pdf"
-    if form_id not in (rec.generated_forms or []) or not path.exists():
+    if form_id not in FORM_NAMES or form_id not in (rec.generated_forms or []):
         raise HTTPException(status_code=404, detail="Form not generated yet")
-    return Response(content=path.read_bytes(), media_type="application/pdf",
+    content = get_storage().read(f"data/forms/{rec.id}_{form_id}.pdf")
+    if content is None:
+        raise HTTPException(status_code=404, detail="Form not generated yet")
+    return Response(content=content, media_type="application/pdf",
                     headers={"Content-Disposition": f'inline; filename="{FORM_NAMES.get(form_id, form_id)}.pdf"'})

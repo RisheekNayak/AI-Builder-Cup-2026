@@ -1,4 +1,5 @@
 import json
+import asyncio
 import logging
 import os
 from pathlib import Path
@@ -79,7 +80,8 @@ def _document_ai(file_bytes: bytes, mime_type: str) -> ExtractedData | None:
     client = documentai.DocumentProcessorServiceClient(client_options=ClientOptions(api_endpoint=f"{location}-documentai.googleapis.com"))
     result = client.process_document(request=documentai.ProcessRequest(
         name=client.processor_path(project_id, location, processor_id),
-        raw_document=documentai.RawDocument(content=file_bytes, mime_type=mime_type)))
+        raw_document=documentai.RawDocument(content=file_bytes, mime_type=mime_type)), retry=None, timeout=30)
+    logger.info("invoice_extraction provider=document_ai outcome=success")
     fields: dict = {}
     items: list[LineItem] = []
     mapping = {"invoice_id": "invoice_number", "invoice_date": "invoice_date", "supplier_name": "seller_name",
@@ -119,7 +121,7 @@ async def process_document(file_bytes: bytes, filename: str) -> ExtractedData:
     if not mime_type:
         raise ExtractionError("Upload a PDF, PNG, JPG or JSON invoice.")
     try:
-        extracted = _document_ai(file_bytes, mime_type)
+        extracted = await asyncio.to_thread(_document_ai, file_bytes, mime_type)
         if extracted and (extracted.buyer_name or extracted.line_items):
             return extracted
     except Exception as error:
@@ -130,6 +132,7 @@ async def process_document(file_bytes: bytes, filename: str) -> ExtractedData:
                               "Try a sample invoice, or upload the invoice as JSON.")
     try:
         data = await llm.extract_document(file_bytes, mime_type, INVOICE_PROMPT)
+        logger.info("invoice_extraction provider=gemini outcome=success")
     except llm.LLMUnavailable as error:
         raise ExtractionError(f"AI extraction failed: {error}") from error
     extracted = ExtractedData(**{k: v for k, v in data.items() if k in ExtractedData.model_fields and k != "line_items"},

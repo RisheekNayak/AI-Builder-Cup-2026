@@ -46,3 +46,6 @@ backend/data/*
 Thumbs.db
 backend/data/shipsure.db
 backend/data/forms/
+
+# Private artifact authoring files and temporary renders
+.artifact-build/

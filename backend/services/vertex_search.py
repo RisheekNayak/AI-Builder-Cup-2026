@@ -1,4 +1,5 @@
 import os
+import asyncio
 import logging
 from typing import List
 from pathlib import Path
@@ -7,6 +8,10 @@ logger = logging.getLogger(__name__)
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 
 async def search(query: str, top_k: int = 5) -> List[dict]:
+    return await asyncio.to_thread(_search, query, top_k)
+
+
+def _search(query: str, top_k: int = 5) -> List[dict]:
     is_gcp_mode = os.environ.get("DEMO_MODE", "true").lower() != "true"
     
     if is_gcp_mode:
@@ -27,20 +32,25 @@ async def search(query: str, top_k: int = 5) -> List[dict]:
                     query=query,
                     page_size=top_k,
                 )
-                response = client.search(request)
+                response = client.search(request, retry=None, timeout=15)
                 
                 results = []
-                for result in response.results:
+                for rank, result in enumerate(response.results, start=1):
                     results.append({
                         "content": result.document.derived_struct_data.get("snippets", [{}])[0].get("snippet", ""),
                         "source": result.document.derived_struct_data.get("link", ""),
-                        "relevance_score": result.relevance_score
+                        # SearchResult has no top-level relevance_score. Preserve
+                        # the server's ordering without assuming optional scores.
+                        "relevance_score": float(1 / rank)
                     })
+                logger.info("policy_search provider=vertex_search outcome=success results=%s", len(results))
                 return results
         except Exception as e:
             logger.error(f"GCP Vertex Search error: {e}, falling back to demo mode")
             
-    return local_search(query, top_k)
+    results = local_search(query, top_k)
+    logger.info("policy_search provider=local outcome=success results=%s", len(results))
+    return results
 
 
 STOPWORDS = {"the", "a", "an", "of", "to", "for", "from", "in", "on", "and", "or", "is", "are", "what", "which", "how", "do",

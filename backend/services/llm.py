@@ -1,5 +1,6 @@
 """Single entry point to Gemini (google-genai SDK). Callers handle LLMUnavailable and fall back to deterministic logic."""
 import json
+import asyncio
 import logging
 import os
 import time
@@ -16,6 +17,10 @@ class LLMUnavailable(RuntimeError):
 
 
 _shared_client = None
+
+
+def provider() -> str:
+    return "developer_api" if os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY") else "vertex_ai"
 
 
 def _client():
@@ -36,7 +41,8 @@ def enabled() -> bool:
 
 
 def status() -> dict:
-    return {"available": enabled(), "model": config.GEMINI_MODEL_NAME, "last_error": _last_error}
+    return {"available": enabled(), "model": config.GEMINI_MODEL_NAME, "last_error": _last_error,
+            "provider": provider(), "mode": os.environ.get("ASSISTANT_MODE", "auto").lower()}
 
 
 def _mark_failed(error: Exception):
@@ -51,8 +57,15 @@ def _mark_failed(error: Exception):
 async def generate(contents, config_obj=None):
     if not enabled():
         raise LLMUnavailable(_last_error or "AI is turned off (ASSISTANT_MODE=offline).")
+    started = time.monotonic()
     try:
-        return await _client().aio.models.generate_content(model=config.GEMINI_MODEL_NAME, contents=contents, config=config_obj)
+        response = await asyncio.wait_for(
+            _client().aio.models.generate_content(model=config.GEMINI_MODEL_NAME, contents=contents, config=config_obj),
+            timeout=45,
+        )
+        logger.info("gemini provider=%s model=%s outcome=success latency_ms=%s", provider(),
+                    config.GEMINI_MODEL_NAME, round((time.monotonic() - started) * 1000))
+        return response
     except Exception as error:  # SDK raises many error types (auth, quota, network)
         _mark_failed(error)
         raise LLMUnavailable(str(error)) from error

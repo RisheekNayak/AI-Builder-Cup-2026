@@ -7,3 +7,12 @@ __pycache__/
 *.pyc
 .env
 .env.local
+.env.*
+backend/venv/
+backend/env/
+.venv/
+.pytest_cache/
+backend/data/*.db
+backend/data/*.db-*
+backend/data/forms/
+backend/uploads/

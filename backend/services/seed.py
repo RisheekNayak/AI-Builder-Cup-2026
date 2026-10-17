@@ -2,7 +2,8 @@
 from datetime import timedelta
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from backend.db import Base, engine, today
+from backend.db import Base, today
+from backend import db as database
 from backend.models.business import (Customer, Dispatch, DispatchLine, Invoice, Item, JobWorkChallan, OrderLine, Payment,
                                      SalesOrder, Task)
 from backend.services.business_common import fy_label
@@ -56,8 +57,10 @@ PAYMENTS = [  # challan, offset, amount (None = full), reference
 
 
 def reset_database():
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
+    if database.engine.dialect.name != "sqlite":
+        raise RuntimeError("Demo reset is supported only for local SQLite databases")
+    Base.metadata.drop_all(database.engine)
+    Base.metadata.create_all(database.engine)
 
 
 def seed(db: Session):

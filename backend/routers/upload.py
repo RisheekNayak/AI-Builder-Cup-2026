@@ -1,4 +1,6 @@
 import uuid
+import asyncio
+from backend.services.storage import get_storage
 from pathlib import Path
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy import select
@@ -12,9 +14,6 @@ from backend.services.compliance_engine import analyze_extracted
 from backend.services.document_ai import ExtractionError, load_sample, process_document
 
 router = APIRouter()
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-UPLOADS_DIR = PROJECT_ROOT / "backend" / "uploads"
-FORMS_DIR = PROJECT_ROOT / "backend" / "data" / "forms"
 ALLOWED_SUFFIXES = {".pdf", ".png", ".jpg", ".jpeg", ".json"}
 
 
@@ -41,8 +40,8 @@ async def run_analysis(db: Session, rec: ShipmentRecord, extracted: ExtractedDat
     rec.risk_report = result["risk_report"].model_dump()
     rec.fta_matches = result["fta_matches"]
     rec.scomet_flags = result["scomet_flags"]
-    for form_id in rec.generated_forms or []:  # forms built from old data are stale
-        (FORMS_DIR / f"{rec.id}_{form_id}.pdf").unlink(missing_ok=True)
+    # Old objects are no longer downloadable once generated_forms is cleared.
+    # Retain them for recovery; a bucket lifecycle policy can expire orphaned objects.
     rec.generated_forms = []
     rec.status = "complete"
     rec.error = None
@@ -53,8 +52,13 @@ async def _create_and_analyze(db: Session, data: bytes, filename: str) -> dict:
     rec = ShipmentRecord(id=str(uuid.uuid4()), filename=filename, status="analyzing")
     db.add(rec)
     db.commit()
-    UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
-    (UPLOADS_DIR / f"{rec.id}{Path(filename).suffix.lower()}").write_bytes(data)
+    try:
+        await asyncio.to_thread(get_storage().write, f"uploads/{rec.id}{Path(filename).suffix.lower()}", data)
+    except Exception:
+        rec.status = "error"
+        rec.error = "Invoice storage is unavailable. Please try uploading again."
+        db.commit()
+        raise HTTPException(status_code=503, detail=rec.error)
     try:
         extracted = await process_document(data, filename)
     except ExtractionError as error:

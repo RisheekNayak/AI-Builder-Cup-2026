@@ -7,13 +7,21 @@ const company = {
   pan: 'AABCP1234C', ad_code: '01234567890123', factory_address: 'Plot 42, Chakan, Pune', state_code: '27',
   port_of_loading: 'INNSA1', authorized_signatory: 'Rajesh Kumar', signatory_designation: 'Director',
 };
+// Match SHIPSURE_TODAY in the isolated backend so date validation is deterministic.
+test.beforeEach(async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-10-11T12:00:00Z'));
+});
+
 const SAMPLE_PO = path.resolve(__dirname, '../../test-data/pos/PO-Chakan-CCPL-2026-748.pdf');
 
 /** The company profile is mocked per test; every other API call goes to the isolated test backend on :8100. */
 async function useTestBackend(page: Page, profile: typeof company | null = company) {
   const state = { profile, saveFailures: 0, getFailure: false, saved: null as unknown };
-  await page.request.post(`${TEST_API}/api/demo/reset`);
-  await page.route('http://localhost:8000/**', async route => {
+  const reset = await page.request.post(`${TEST_API}/api/demo/reset`, { headers: { 'X-Demo-Reset-Token': 'isolated-e2e-only' } });
+  expect(reset.ok()).toBeTruthy();
+  // NEXT_PUBLIC_API_URL is baked into the build. Intercept every API host so a
+  // configured build still uses these mocks and the isolated backend only.
+  await page.route('**/api/**', async route => {
     const request = route.request();
     const url = new URL(request.url());
     if (url.pathname === '/api/company/') {
